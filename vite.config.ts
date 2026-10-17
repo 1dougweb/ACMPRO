@@ -17,14 +17,13 @@ function keyClaims(value: string | undefined) {
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const selectedApi = env.VITE_API ?? (mode === 'development' ? 'mock' : 'supabase')
+  // Production builds always target Supabase. This ignores stale Vercel values
+  // such as VITE_API=mock without embedding them in the browser bundle.
+  const selectedApi = mode === 'production' ? 'supabase' : env.VITE_API ?? 'mock'
   const publicKey = env.VITE_SUPABASE_ANON_KEY?.trim() ?? ''
 
   if (!['mock', 'supabase'].includes(selectedApi)) {
     throw new Error('Build interrompido: VITE_API deve ser "supabase".')
-  }
-  if (mode === 'production' && selectedApi !== 'supabase') {
-    throw new Error('Build de produção interrompido: configure o backend Supabase.')
   }
   if (process.env.VERCEL === '1') {
     let projectRef = ''
@@ -44,5 +43,8 @@ export default defineConfig(({ mode }) => {
     }
   }
 
-  return { plugins: [react()] }
+  return {
+    plugins: [react()],
+    define: { __API_MODE__: JSON.stringify(selectedApi) },
+  }
 })
