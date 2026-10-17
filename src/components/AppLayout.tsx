@@ -30,19 +30,31 @@ export default function AppLayout() {
 
   useEffect(() => {
     let current = true
-    void api.getAdminOverview().then((overview) => { if (current) setAdminOverview(overview) })
-      .catch((error: unknown) => { if (current) setAdminError((error as Error).message) })
-      .finally(() => { if (current) setAdminChecked(true) })
     
     void api.getLicense()
-      .then((lic) => { if (current) setLicense(lic) })
-      .catch(() => { if (current) setLicense(null) })
+      .then((lic) => {
+        if (!current) return
+        setLicense(lic)
+        if (lic?.isAdmin || location.pathname.startsWith('/app/admin')) {
+          void api.getAdminOverview()
+            .then((overview) => { if (current) setAdminOverview(overview) })
+            .catch((error: unknown) => { if (current) setAdminError((error as Error).message) })
+            .finally(() => { if (current) setAdminChecked(true) })
+        } else {
+          setAdminChecked(true)
+        }
+      })
+      .catch(() => {
+        if (!current) return
+        setLicense(null)
+        setAdminChecked(true)
+      })
       .finally(() => { if (current) setLicenseChecked(true) })
 
     void api.getLatestPluginRelease().then((rel) => { if (current) setPluginRelease(rel) }).catch(() => { if (current) setPluginRelease(null) })
 
     return () => { current = false }
-  }, [])
+  }, [location.pathname])
 
   const hasActivePlan = isLicenseActive(license)
 

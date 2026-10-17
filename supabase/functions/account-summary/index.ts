@@ -1,5 +1,6 @@
 import { accountMembership, requestContext } from '../_shared/auth.ts'
 import { errorMessage, preflight, respond } from '../_shared/http.ts'
+import { verifiedEmail } from '../_shared/site-admin.ts'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return preflight(req)
@@ -56,6 +57,7 @@ Deno.serve(async (req) => {
       status,
       hasSubscription,
       lifetime,
+      isAdmin: verifiedEmail(ctx.user),
       cancellable: !lifetime && Boolean(currentSubscription?.provider_subscription_id && currentSubscription.offer_key === 'pro_monthly' && currentSubscription.status !== 'canceled'),
       cancelAtPeriodEnd: !lifetime && (currentSubscription?.status === 'canceled' || currentSubscription?.cancel_at_period_end === true),
       expiresAt,

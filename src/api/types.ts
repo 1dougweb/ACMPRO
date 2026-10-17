@@ -100,6 +100,7 @@ export interface License {
   deviceLimit: number | null
   hasSubscription?: boolean
   lifetime?: boolean
+  isAdmin?: boolean
   seatLimit?: number | null
   seatsUsed?: number
   devicesUsed?: number

@@ -267,7 +267,7 @@ export default function Landing() {
         <div className="sales-faq-list">
           <details><summary>Preciso saber usar SketchUp?</summary><p>Não. O treinamento começa pelos fundamentos e avança até a documentação técnica e as pranchas no LayOut.</p></details>
           <details><summary>A licença do SketchUp está incluída?</summary><p>Não. O plano inclui o plugin GOACM, o treinamento e o suporte. A licença do SketchUp é separada.</p></details>
-          <details><summary>Como funciona o plano mensal?</summary><p>{offers?.monthlyTrialDays ? `${offers.monthlyTrialDays} dias de teste grátis após autorizar a assinatura no Mercado Pago. Depois, o cartão é cobrado mensalmente de forma recorrente. Cancele pelo portal antes do fim do teste para evitar a primeira cobrança.` : 'O cartão é cobrado mensalmente de forma recorrente. Você pode cancelar a renovação pelo portal; o acesso continua até o fim do período pago.'}</p></details>
+          <details><summary>Como funciona o plano mensal?</summary><p>O cartão é cobrado mensalmente de forma recorrente via Mercado Pago. Você pode cancelar a renovação a qualquer momento pelo portal; o acesso continua até o fim do período já pago.</p></details>
           <details><summary>Como funciona o plano anual?</summary><p>O pagamento é feito uma vez via Pix e não há renovação automática.</p></details>
           <details><summary>Em quantos computadores posso usar?</summary><p>Cada pessoa da conta pode autorizar 1 computador. O plano inclui até três pessoas: titular e dois membros.</p></details>
           <details><summary>O que está incluído no suporte?</summary><p>O suporte ajuda com dúvidas sobre o plugin e o treinamento. Não inclui consultoria nem criação ou revisão de projetos.</p></details>

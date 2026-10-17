@@ -113,7 +113,7 @@ export default function Plans() {
           <h3>Pro Mensal</h3>
           <div className="plan-option-price">{offers ? formatBRL(offers.monthlyAmountCents) : '—'}<small> / mês</small></div>
           <p className="muted">Renovação automática pelo Mercado Pago. Cancele quando quiser.</p>
-          {offers?.monthlyTrialDays ? <p className="plan-note">Inclui {offers.monthlyTrialDays} dias de teste grátis.</p> : <p className="plan-note">Pagamento recorrente via Mercado Pago.</p>}
+          <p className="plan-note">Pagamento recorrente via Mercado Pago.</p>
           <button className="btn primary" disabled={busy || !offers || active || license.role !== 'owner'} onClick={() => void checkout('pro_monthly')}>
             <CreditCard size={15} /> {busy ? 'Abrindo…' : active ? license.offerKey === 'pro_monthly' ? 'Plano atual' : 'Licença já ativa' : 'Escolher mensal'}
           </button>

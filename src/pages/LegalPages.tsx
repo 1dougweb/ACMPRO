@@ -27,11 +27,11 @@ export function TermsPage() {
       <p>Estes termos explicam as condições para usar o plugin GOACM, o painel de projetos, o treinamento e o suporte incluídos na assinatura. Ao criar uma conta ou contratar um plano, você concorda com estas condições.</p>
 
       <h2>Planos e pagamento</h2>
-      <p>O plano Pro mensal custa R$ 97 por mês no cartão. Novos assinantes têm 7 dias de teste grátis após a autorização da assinatura no Mercado Pago; a primeira cobrança ocorre ao final do teste, se a renovação não for cancelada antes.</p>
+      <p>O plano Pro mensal custa R$ 97 por mês no cartão com cobrança recorrente via Mercado Pago.</p>
       <p>O plano Pro anual custa R$ 970, pagos uma vez via Pix, e dá acesso por 12 meses sem renovação automática. Os preços vigentes são exibidos na página de planos antes da contratação.</p>
 
       <h2>Cancelamento e arrependimento</h2>
-      <p>A assinatura mensal pode ser cancelada pelo titular no portal, sem multa. O cancelamento impede cobranças futuras; o acesso permanece até o fim do período pago ou, durante o teste, até o término dos 7 dias, sem cobrança mensal.</p>
+      <p>A assinatura mensal pode ser cancelada pelo titular no portal a qualquer momento, sem multa. O cancelamento impede cobranças futuras; o acesso permanece até o fim do período já pago.</p>
       <p>O direito de arrependimento pode ser exercido em até 7 dias, conforme a legislação aplicável, com reembolso integral do valor pago dentro desse prazo. Para solicitar o reembolso, escreva para <a href="mailto:suporte@acm360.com.br">suporte@acm360.com.br</a> dentro do prazo. Cancelar a renovação pelo portal interrompe cobranças futuras, mas não envia um pedido de estorno. O reembolso aprovado é feito pelo mesmo meio de pagamento.</p>
 
       <h2>Licença e acessos</h2>

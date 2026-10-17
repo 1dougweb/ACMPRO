@@ -117,7 +117,6 @@ Deno.serve(async (req) => {
               frequency_type: 'months',
               transaction_amount: centsToAmount(checkoutAmountCents),
               currency_id: 'BRL',
-              free_trial: { frequency: 7, frequency_type: 'days' },
             },
             back_url: portalReturnUrl,
             notification_url: webhookUrl(),
