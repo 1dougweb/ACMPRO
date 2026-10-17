@@ -25,9 +25,17 @@ import {
   Sparkles,
   Eye,
   Check,
+  Scissors,
+  Grid,
+  Ruler,
+  Printer,
+  Copy,
+  Clock,
+  User,
 } from 'lucide-react'
 import { api, type Project, type ProjectDetails, type ProjectStatus } from '../api'
 import { usePageMeta } from '../lib/usePageMeta'
+import { CutReportView, type RawCutPiece } from '../components/CutReportView'
 
 type FilterKey = 'todos' | 'rascunho' | 'em_producao' | 'concluido'
 type SortKey = 'recent' | 'oldest' | 'name_asc' | 'customer_asc'
@@ -71,6 +79,149 @@ export default function Dashboard() {
   const [details, setDetails] = useState<ProjectDetails | null>(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
   const [updatingStatus, setUpdatingStatus] = useState(false)
+  const [detailTab, setDetailTab] = useState<'overview' | 'planifications' | 'structures' | 'cutlist' | 'revisions'>('overview')
+  const [copiedNotification, setCopiedNotification] = useState('')
+
+  // Extrai estruturas, planificações, cortes metálicos e métricas detalhadas dos datasets
+  const extracted = useMemo(() => {
+    if (!details) {
+      return {
+        structures: [] as Array<{ id: string; name: string; tags: string[]; totalTubes: number; totalLengthM: number | null; profiles: string[]; revision: number }>,
+        planifications: [] as Array<{ id: string; name: string; tags: string[]; widthMm: number; heightMm: number; thicknessMm: number; areaM2: number; quantity: number; folds?: string | null; revision: number }>,
+        cuts: [] as RawCutPiece[],
+        totalAreaM2: 0,
+        totalTubesM: 0,
+        totalTraysCount: 0,
+      }
+    }
+
+    const structures: Array<{ id: string; name: string; tags: string[]; totalTubes: number; totalLengthM: number | null; profiles: string[]; revision: number }> = []
+    const planifications: Array<{ id: string; name: string; tags: string[]; widthMm: number; heightMm: number; thicknessMm: number; areaM2: number; quantity: number; folds?: string | null; revision: number }> = []
+    const cuts: RawCutPiece[] = []
+    const seenPlanifications = new Set<string>()
+
+    // 1. Processa das publicações (datasets)
+    for (const pub of details.publications) {
+      const rawDatasets = Array.isArray(pub.datasets) ? pub.datasets : []
+      for (let i = 0; i < rawDatasets.length; i++) {
+        const ds = rawDatasets[i] as Record<string, unknown> | null
+        if (!ds || typeof ds !== 'object') continue
+
+        const kind = String(ds.kind || ds.role || '').toLowerCase()
+        const label = String(ds.label || ds.name || `Item ${i + 1}`)
+        const tags = Array.isArray(ds.tags) ? ds.tags.map(String) : []
+        const payload = (ds.payload && typeof ds.payload === 'object' ? ds.payload : {}) as Record<string, unknown>
+
+        // Estrutura
+        if (kind === 'structure') {
+          const profiles: string[] = []
+          if (Array.isArray(payload.profiles)) {
+            profiles.push(...payload.profiles.map(String))
+          } else if (payload.profile) {
+            profiles.push(String(payload.profile))
+          }
+          structures.push({
+            id: String(ds.item_id || `${pub.id}-struct-${i}`),
+            name: label,
+            tags,
+            totalTubes: Number(payload.total_tubes || payload.tubes_count || (Array.isArray(payload.tubes) ? payload.tubes.length : 0)),
+            totalLengthM: payload.total_length_m ? Number(payload.total_length_m) : (payload.length_m ? Number(payload.length_m) : null),
+            profiles,
+            revision: pub.revision,
+          })
+        }
+
+        // Lista de Corte (metal_cut_list / cut_list do SketchUp)
+        if (kind === 'metal_cut_list' || kind === 'cutlist') {
+          const rawCuts = (
+            Array.isArray(payload.cut_list)
+              ? payload.cut_list
+              : Array.isArray(payload.cuts)
+              ? payload.cuts
+              : Array.isArray(payload.rows)
+              ? payload.rows
+              : Array.isArray(ds.cuts)
+              ? ds.cuts
+              : []
+          ) as Array<Record<string, unknown>>
+
+          for (let j = 0; j < rawCuts.length; j++) {
+            const c = rawCuts[j]
+            const len = Number(c.length_mm != null ? c.length_mm : (Number(c.length_cm || 0) * 10))
+            const qty = Number(c.qty || c.quantity || 1)
+            const metal = String(c.metal_name || c.metal || 'Aço Carbono')
+            const desc = String(c.tube_desc || c.tube_type || c.profile || c.section || 'Tubo Quadrado 20 x 20 - 1.25mm')
+            const color = String(c.color || '')
+            const cutAngle = String(c.cut || c.angle || c.angles || '—')
+            const prodTag = c.production && typeof c.production === 'object' ? String((c.production as Record<string, unknown>).tube_label || '') : undefined
+
+            cuts.push({
+              id: `${pub.id}-cut-${i}-${j}`,
+              metal,
+              desc,
+              color,
+              cut: cutAngle,
+              lengthMm: len,
+              qty,
+              section: String(c.section || label.replace(/^Lista de corte:\s*/i, '')),
+              sectionTag: c.section_tag ? String(c.section_tag) : undefined,
+              productionTag: prodTag,
+              isFastener: Boolean(c.is_fastener || metal.toLowerCase().includes('fixador') || desc.toLowerCase().includes('parafuso')),
+            })
+          }
+        }
+
+        // Planificação de Chapa/Bandeja
+        if (kind === 'flat_tray' || kind === 'tray' || kind === 'sheet' || kind === 'planification' || (ds.role === 'data' && kind !== 'structure' && kind !== 'metal_cut_list')) {
+          const w = Number(payload.width_mm || payload.width || 0)
+          const h = Number(payload.height_mm || payload.height || 0)
+          const qty = Number(payload.qty || payload.quantity || 1)
+          const area = Number(payload.area_m2 || (w && h ? (w * h) / 1_000_000 : 0))
+          const key = `${label}-${w}x${h}`
+          if (!seenPlanifications.has(key)) {
+            seenPlanifications.add(key)
+            planifications.push({
+              id: String(ds.item_id || `${pub.id}-tray-${i}`),
+              name: label,
+              tags,
+              widthMm: w,
+              heightMm: h,
+              thicknessMm: Number(payload.thickness_mm || 3),
+              areaM2: area,
+              quantity: qty,
+              folds: payload.flanges ? JSON.stringify(payload.flanges) : null,
+              revision: pub.revision,
+            })
+          }
+        }
+      }
+    }
+
+    // 2. Incorpora peças de details.parts
+    for (const p of details.parts) {
+      const key = `${p.name}-${p.widthMm}x${p.heightMm}`
+      if (!seenPlanifications.has(key)) {
+        seenPlanifications.add(key)
+        planifications.push({
+          id: p.id,
+          name: p.name,
+          tags: [],
+          widthMm: p.widthMm,
+          heightMm: p.heightMm,
+          thicknessMm: 3,
+          areaM2: (p.widthMm * p.heightMm) / 1_000_000,
+          quantity: p.quantity,
+          revision: 1,
+        })
+      }
+    }
+
+    const totalAreaM2 = planifications.reduce((sum, item) => sum + (item.areaM2 * item.quantity), 0)
+    const totalTubesM = cuts.reduce((sum, item) => sum + ((item.lengthMm * item.qty) / 1000), 0)
+    const totalTraysCount = planifications.reduce((sum, item) => sum + item.quantity, 0)
+
+    return { structures, planifications, cuts, totalAreaM2, totalTubesM, totalTraysCount }
+  }, [details])
 
   const searchInputRef = useRef<HTMLInputElement>(null)
   const sortRef = useRef<HTMLDivElement>(null)
@@ -214,7 +365,9 @@ export default function Dashboard() {
 
   return (
     <div className="projects-page">
-      <div className="projects-breadcrumb">
+      {/* Conteúdo principal do Dashboard (Oculto na impressão do modal) */}
+      <div className="cut-print-hide">
+        <div className="projects-breadcrumb">
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
           <FolderKanban size={13} style={{ color: 'var(--brand)' }} />
           Workspace
@@ -481,6 +634,12 @@ export default function Dashboard() {
                     <Layers size={12} />
                     {project.lastPublicationAt ? 'Sincronizado' : 'Manual'}
                   </span>
+                  {Boolean(project.totalAreaM2 && project.totalAreaM2 > 0) && (
+                    <span style={{ color: 'var(--brand-dark)', fontWeight: 600 }}>
+                      <Grid size={12} />
+                      {project.totalAreaM2?.toFixed(1)} m² ACM
+                    </span>
+                  )}
                 </div>
 
                 <div className="project-card-footer">
@@ -624,6 +783,7 @@ export default function Dashboard() {
           <span>Clique em um projeto para ver publicações do SketchUp, peças e alterar status</span>
         </div>
       </section>
+      </div>
 
       {/* MODAL DE NOVO PROJETO / GUIA SKETCHUP */}
       {showNewModal && (
@@ -727,7 +887,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* MODAL DE DETALHES DO PROJETO */}
+      {/* MODAL DE DETALHES DO PROJETO COM ESTRUTURAS, PLANIFICAÇÕES E LISTAS DE CORTE */}
       {selectedProjectId && (
         <div
           className="modal-backdrop"
@@ -736,7 +896,7 @@ export default function Dashboard() {
         >
           <section
             className="profile-modal"
-            style={{ maxWidth: 680 }}
+            style={{ maxWidth: 960, width: '95%', maxHeight: '90vh', overflowY: 'auto' }}
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-details-title"
@@ -746,131 +906,483 @@ export default function Dashboard() {
             </button>
 
             {loadingDetails && !details ? (
-              <div className="splash" style={{ minHeight: 200 }}>
+              <div className="splash" style={{ minHeight: 260 }}>
                 <div className="spinner" />
               </div>
             ) : details ? (
               <div>
-                <div className="profile-modal-heading" style={{ marginBottom: 12 }}>
-                  <span className="profile-alert-icon" aria-hidden="true">
-                    <Box size={16} />
+                {/* Cabeçalho do Projeto em Tela (com botões de status e ações) */}
+                <div className="profile-modal-heading cut-print-hide" style={{ marginBottom: 14 }}>
+                  <span className="profile-alert-icon" aria-hidden="true" style={{ background: 'var(--brand-surface)', color: 'var(--brand-dark)' }}>
+                    <Box size={18} />
                   </span>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--brand-dark)', background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', borderRadius: 4, padding: '2px 6px', textTransform: 'uppercase' }}>
+                          Projeto
+                        </span>
+                        <h2 id="modal-details-title" style={{ margin: 0, fontSize: 22, fontWeight: 800, color: 'var(--text)' }}>
+                          {details.project.name}
+                        </h2>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase' }}>Status:</span>
+                        {(['rascunho', 'em_producao', 'concluido'] as ProjectStatus[]).map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            disabled={updatingStatus}
+                            className={`status-badge-interactive ${st} ${details.project.status === st ? 'active' : ''}`}
+                            style={{
+                              opacity: details.project.status === st ? 1 : 0.5,
+                              fontWeight: details.project.status === st ? 700 : 500,
+                              transform: details.project.status === st ? 'scale(1.02)' : 'none',
+                              fontSize: 11,
+                              padding: '3px 8px',
+                            }}
+                            onClick={() => handleStatusChange(details.project.id, st)}
+                          >
+                            {details.project.status === st && <Check size={11} />}
+                            {statusLabels[st]}
+                          </button>
+                        ))}
+                        <button
+                          type="button"
+                          className="btn sm"
+                          onClick={() => window.print()}
+                          style={{ fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 5, marginLeft: 4 }}
+                          title="Imprimir ou Salvar PDF deste projeto"
+                        >
+                          <Printer size={12} /> Imprimir / PDF
+                        </button>
+                      </div>
+                    </div>
+                    <p className="muted" style={{ margin: '4px 0 0', fontSize: 12 }}>
+                      Cliente: <strong>{details.project.customerName || 'Não informado'}</strong> · Criado em {new Date(details.project.createdAt).toLocaleDateString('pt-BR')} · Última sincronização: {details.project.lastPublicationAt ? new Date(details.project.lastPublicationAt).toLocaleString('pt-BR') : 'Ainda não publicado'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Cabeçalho de Impressão Oficial do Projeto (Aparece no topo da folha A4) */}
+                <div className="cut-print-only" style={{ marginBottom: 16 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '2px solid #0f172a', paddingBottom: 10, marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--brand-dark)', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+                        ACM360 • GOACM &nbsp;•&nbsp; RELATÓRIO TÉCNICO DE ENGENHARIA
+                      </div>
+                      <h1 style={{ margin: '4px 0 2px', fontSize: 24, fontWeight: 900, color: '#0f172a', letterSpacing: -0.5 }}>
+                        Projeto: {details.project.name}
+                      </h1>
+                      <div style={{ fontSize: 11, color: '#475569', marginTop: 3 }}>
+                        Cliente: <strong>{details.project.customerName || 'Não informado'}</strong> &nbsp;•&nbsp;
+                        Criado em: {new Date(details.project.createdAt).toLocaleDateString('pt-BR')} &nbsp;•&nbsp;
+                        Última Sincronização: {details.project.lastPublicationAt ? new Date(details.project.lastPublicationAt).toLocaleString('pt-BR') : 'Sem publicação'}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                      <span style={{ display: 'inline-block', padding: '4px 10px', borderRadius: 4, border: '1.5px solid #0f172a', fontSize: 11, fontWeight: 800, textTransform: 'uppercase', color: '#0f172a' }}>
+                        STATUS: {statusLabels[details.project.status]?.toUpperCase() || 'RASCUNHO'}
+                      </span>
+                      <span style={{ fontSize: 9.5, color: '#64748b' }}>
+                        Emissão: {new Date().toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {copiedNotification && (
+                  <div className="success" style={{ marginBottom: 12, fontSize: 12, padding: '6px 12px' }}>
+                    <CheckCircle2 size={14} /> {copiedNotification}
+                  </div>
+                )}
+
+                {/* Abas de Navegação */}
+                <div className="modal-tabs" style={{ display: 'flex', gap: 6, borderBottom: '1px solid var(--border)', marginBottom: 18, overflowX: 'auto' }}>
+                  <button
+                    type="button"
+                    className={`modal-tab-btn ${detailTab === 'overview' ? 'active' : ''}`}
+                    onClick={() => setDetailTab('overview')}
+                  >
+                    <Info size={14} /> Visão Geral
+                  </button>
+                  <button
+                    type="button"
+                    className={`modal-tab-btn ${detailTab === 'planifications' ? 'active' : ''}`}
+                    onClick={() => setDetailTab('planifications')}
+                  >
+                    <Grid size={14} /> Planificações ACM ({extracted.planifications.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`modal-tab-btn ${detailTab === 'structures' ? 'active' : ''}`}
+                    onClick={() => setDetailTab('structures')}
+                  >
+                    <Box size={14} /> Estruturas 3D ({extracted.structures.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`modal-tab-btn ${detailTab === 'cutlist' ? 'active' : ''}`}
+                    onClick={() => setDetailTab('cutlist')}
+                  >
+                    <Ruler size={14} /> Lista & Plano de Corte ({extracted.cuts.length})
+                  </button>
+                  <button
+                    type="button"
+                    className={`modal-tab-btn ${detailTab === 'revisions' ? 'active' : ''}`}
+                    onClick={() => setDetailTab('revisions')}
+                  >
+                    <Layers size={14} /> Revisões CAD ({details.publications.length})
+                  </button>
+                </div>
+
+                {/* TAB 1: VISÃO GERAL */}
+                {detailTab === 'overview' && (
                   <div>
-                    <h2 id="modal-details-title">{details.project.name}</h2>
-                    <p className="muted">
-                      Cliente: {details.project.customerName || 'Não informado'} · Criado em {new Date(details.project.createdAt).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Status Interativo */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', background: 'var(--bg-soft)', border: '1px solid var(--border)', borderRadius: 8, margin: '14px 0' }}>
-                  <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)' }}>Status do Projeto:</span>
-                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {(['rascunho', 'em_producao', 'concluido'] as ProjectStatus[]).map((st) => (
-                      <button
-                        key={st}
-                        type="button"
-                        disabled={updatingStatus}
-                        className={`status-badge-interactive ${st} ${details.project.status === st ? 'active' : ''}`}
-                        style={{
-                          opacity: details.project.status === st ? 1 : 0.6,
-                          fontWeight: details.project.status === st ? 700 : 500,
-                          transform: details.project.status === st ? 'scale(1.03)' : 'none',
-                        }}
-                        onClick={() => handleStatusChange(details.project.id, st)}
-                      >
-                        {details.project.status === st && <Check size={12} />}
-                        {statusLabels[st]}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Cards de Métricas do Projeto */}
-                <div className="project-details-grid">
-                  <div className="project-details-card">
-                    <label>Publicações do Plugin</label>
-                    <strong>{details.publications.length} revisão(ões)</strong>
-                  </div>
-                  <div className="project-details-card">
-                    <label>Peças & Quantitativos</label>
-                    <strong>
-                      {details.parts.length
-                        ? `${details.parts.reduce((acc, p) => acc + p.quantity, 0)} peça(s) catalogada(s)`
-                        : 'Nenhuma peça exportada'}
-                    </strong>
-                  </div>
-                </div>
-
-                {/* Histórico de Publicações do SketchUp */}
-                <div style={{ marginTop: 20 }}>
-                  <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Layers size={15} style={{ color: 'var(--brand)' }} />
-                    Histórico de Publicações CAD
-                  </h3>
-                  {details.publications.length === 0 ? (
-                    <p className="empty" style={{ padding: '14px 0', fontSize: 13 }}>
-                      Nenhuma versão publicada via SketchUp para este projeto ainda.
-                    </p>
-                  ) : (
-                    <div className="table-wrap">
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th>Rev.</th>
-                            <th>Modelo / Mensagem</th>
-                            <th>Autor</th>
-                            <th>Data</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {details.publications.map((pub) => (
-                            <tr key={pub.id}>
-                              <td><span className="count-pill">r{pub.revision}</span></td>
-                              <td>
-                                <strong>{pub.modelName || 'Modelo SketchUp'}</strong>
-                                {pub.message && <small className="table-subtitle">{pub.message}</small>}
-                              </td>
-                              <td>{pub.authorName || 'Projetista'}</td>
-                              <td>{new Date(pub.publishedAt || pub.createdAt).toLocaleString('pt-BR')}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    {/* 4 Cards de Destaque */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 12, marginBottom: 20 }}>
+                      <div className="project-details-card" style={{ borderLeft: '3px solid var(--brand)' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Grid size={13} style={{ color: 'var(--brand)' }} /> Área Total de ACM
+                        </label>
+                        <strong style={{ fontSize: 18 }}>{extracted.totalAreaM2 > 0 ? `${extracted.totalAreaM2.toFixed(2)} m²` : 'Calculando…'}</strong>
+                        <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginTop: 3 }}>
+                          {extracted.totalTraysCount} chapa(s) / bandeja(s)
+                        </span>
+                      </div>
+                      <div className="project-details-card" style={{ borderLeft: '3px solid #3b82f6' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Scissors size={13} style={{ color: '#3b82f6' }} /> Planificações
+                        </label>
+                        <strong style={{ fontSize: 18 }}>{extracted.planifications.length} modelo(s)</strong>
+                        <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginTop: 3 }}>
+                          {extracted.totalTraysCount} peças planificadas
+                        </span>
+                      </div>
+                      <div className="project-details-card" style={{ borderLeft: '3px solid #8b5cf6' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Box size={13} style={{ color: '#8b5cf6' }} /> Estruturas 3D
+                        </label>
+                        <strong style={{ fontSize: 18 }}>{extracted.structures.length} estrutura(s)</strong>
+                        <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginTop: 3 }}>
+                          Montantes e perfis modelados
+                        </span>
+                      </div>
+                      <div className="project-details-card" style={{ borderLeft: '3px solid #f59e0b' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <Ruler size={13} style={{ color: '#f59e0b' }} /> Serralheria / Tubos
+                        </label>
+                        <strong style={{ fontSize: 18 }}>
+                          {extracted.totalTubesM > 0 ? `${extracted.totalTubesM.toFixed(1)} m` : `${extracted.cuts.length} cortes`}
+                        </strong>
+                        <span style={{ fontSize: 11, color: 'var(--muted)', display: 'block', marginTop: 3 }}>
+                          {extracted.cuts.reduce((sum, c) => sum + c.qty, 0)} barras para corte
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
 
-                {/* Peças e Chapas se houver */}
-                {details.parts.length > 0 && (
-                  <div style={{ marginTop: 20 }}>
-                    <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--text)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Box size={15} style={{ color: 'var(--brand)' }} />
-                      Lista de Peças de ACM
-                    </h3>
-                    <div className="table-wrap" style={{ maxHeight: 180, overflowY: 'auto' }}>
-                      <table className="table">
-                        <thead>
-                          <tr>
-                            <th>Peça</th>
-                            <th>Largura (mm)</th>
-                            <th>Altura (mm)</th>
-                            <th>Qtd</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {details.parts.map((part) => (
-                            <tr key={part.id}>
-                              <td>{part.name}</td>
-                              <td>{part.widthMm} mm</td>
-                              <td>{part.heightMm} mm</td>
-                              <td><strong>{part.quantity} un.</strong></td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    {/* Resumo da Última Publicação */}
+                    {details.publications.length > 0 ? (
+                      <div style={{ padding: '14px 16px', background: 'var(--bg-soft)', borderRadius: 8, border: '1px solid var(--border)', marginBottom: 20 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                            <Layers size={14} style={{ color: 'var(--brand)' }} />
+                            Última Revisão Publicada: <span className="count-pill">r{details.publications[0].revision}</span>
+                          </span>
+                          <span style={{ fontSize: 11, color: 'var(--muted)', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <Clock size={11} /> {new Date(details.publications[0].publishedAt || details.publications[0].createdAt).toLocaleString('pt-BR')}
+                          </span>
+                        </div>
+                        <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text)' }}>
+                          {details.publications[0].message || 'Sem mensagem descritiva de publicação.'}
+                        </p>
+                        <div style={{ display: 'flex', gap: 16, fontSize: 11, color: 'var(--muted)', flexWrap: 'wrap' }}>
+                          <span>Arquivo SketchUp: <strong>{details.publications[0].modelName || 'Modelo 3D'}</strong></span>
+                          <span>Projetista: <strong>{details.publications[0].authorName || 'Projetista'}</strong></span>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="project-empty" style={{ minHeight: 140, padding: 20, marginBottom: 20 }}>
+                        <div className="project-empty-icon" style={{ color: 'var(--brand)', marginBottom: 6 }}><Layers size={28} /></div>
+                        <h4 style={{ margin: '0 0 4px', fontSize: 14 }}>Nenhuma publicação recebida do SketchUp ainda</h4>
+                        <p className="muted" style={{ margin: 0, fontSize: 12 }}>
+                          Abra o SketchUp com o plugin GOACM, vincule este projeto e clique em "Publicar Revisão" para enviar planificações, estruturas e cortes.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Atalhos para as outras abas */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 12 }}>
+                      <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 14, background: '#ffffff' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Grid size={14} style={{ color: 'var(--brand)' }} /> Planificações de Bandejas
+                          </h4>
+                          <button type="button" className="btn sm" onClick={() => setDetailTab('planifications')}>
+                            Ver todas ({extracted.planifications.length})
+                          </button>
+                        </div>
+                        {extracted.planifications.slice(0, 3).map((item) => (
+                          <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12 }}>
+                            <span style={{ fontWeight: 600 }}>{item.name}</span>
+                            <span className="muted">{item.widthMm} × {item.heightMm} mm ({item.quantity} un.)</span>
+                          </div>
+                        ))}
+                        {extracted.planifications.length === 0 && (
+                          <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>Nenhuma bandeja planificada.</p>
+                        )}
+                      </div>
+
+                      <div style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 14, background: '#ffffff' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                          <h4 style={{ margin: 0, fontSize: 13, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <Box size={14} style={{ color: '#8b5cf6' }} /> Estruturas Modeladas
+                          </h4>
+                          <button type="button" className="btn sm" onClick={() => setDetailTab('structures')}>
+                            Ver todas ({extracted.structures.length})
+                          </button>
+                        </div>
+                        {extracted.structures.slice(0, 3).map((item) => (
+                          <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid var(--border)', fontSize: 12 }}>
+                            <span style={{ fontWeight: 600 }}>{item.name}</span>
+                            <span className="muted">{item.totalTubes > 0 ? `${item.totalTubes} tubos` : 'Estrutura 3D'}</span>
+                          </div>
+                        ))}
+                        {extracted.structures.length === 0 && (
+                          <p className="muted" style={{ fontSize: 12, margin: '8px 0 0' }}>Nenhuma estrutura catalogada.</p>
+                        )}
+                      </div>
                     </div>
+                  </div>
+                )}
+
+                {/* TAB 2: PLANIFICAÇÕES (BANDEJAS ACM) */}
+                {detailTab === 'planifications' && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>
+                          Bandejas Planificadas ({extracted.planifications.length})
+                        </span>
+                        <span className="badge active" style={{ fontSize: 11 }}>
+                          Total: {extracted.totalAreaM2.toFixed(2)} m² ACM
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          type="button"
+                          className="btn sm"
+                          onClick={() => {
+                            const header = 'Nome,Largura(mm),Altura(mm),Espessura(mm),Area(m2),Qtd,AreaTotal(m2)\n'
+                            const rows = extracted.planifications.map((p) => `"${p.name}",${p.widthMm},${p.heightMm},${p.thicknessMm},${p.areaM2.toFixed(3)},${p.quantity},${(p.areaM2 * p.quantity).toFixed(3)}`).join('\n')
+                            navigator.clipboard.writeText(header + rows)
+                            setCopiedNotification('Tabela de planificações copiada para a área de transferência!')
+                            setTimeout(() => setCopiedNotification(''), 4000)
+                          }}
+                          title="Copiar lista de bandejas para colar no Excel"
+                        >
+                          <Copy size={12} /> Copiar CSV
+                        </button>
+                      </div>
+                    </div>
+
+                    {extracted.planifications.length === 0 ? (
+                      <div className="project-empty" style={{ minHeight: 180, padding: 24 }}>
+                        <div className="project-empty-icon" style={{ color: 'var(--brand)' }}><Grid size={32} /></div>
+                        <h3>Nenhuma planificação encontrada</h3>
+                        <p className="muted" style={{ maxWidth: 480, margin: '6px auto', fontSize: 13 }}>
+                          Para enviar bandejas para o site, use a ferramenta de <strong>Planificação</strong> no plugin GOACM do SketchUp e clique em <strong>Publicar</strong>.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="table-wrap" style={{ maxHeight: 380, overflowY: 'auto' }}>
+                        <table className="table">
+                          <thead>
+                            <tr>
+                              <th>Peça / Bandeja</th>
+                              <th>Etiqueta / Tag</th>
+                              <th>Largura</th>
+                              <th>Altura</th>
+                              <th>Espessura</th>
+                              <th>Área Unit.</th>
+                              <th>Qtd</th>
+                              <th>Área Total</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {extracted.planifications.map((item) => (
+                              <tr key={item.id}>
+                                <td>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 600 }}>
+                                    <Grid size={13} style={{ color: 'var(--brand)' }} />
+                                    {item.name}
+                                  </span>
+                                </td>
+                                <td>
+                                  {item.tags.length ? (
+                                    <span style={{ fontSize: 11, background: 'var(--bg-soft)', padding: '2px 6px', borderRadius: 4, border: '1px solid var(--border)' }}>
+                                      {item.tags.join(', ')}
+                                    </span>
+                                  ) : <span className="muted">—</span>}
+                                </td>
+                                <td>{item.widthMm ? `${item.widthMm} mm` : '—'}</td>
+                                <td>{item.heightMm ? `${item.heightMm} mm` : '—'}</td>
+                                <td>{item.thicknessMm} mm</td>
+                                <td>{item.areaM2 ? `${item.areaM2.toFixed(3)} m²` : '—'}</td>
+                                <td><strong>{item.quantity} un.</strong></td>
+                                <td>
+                                  <strong style={{ color: 'var(--brand-dark)' }}>
+                                    {(item.areaM2 * item.quantity).toFixed(3)} m²
+                                  </strong>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr style={{ background: 'var(--bg-soft)', fontWeight: 700 }}>
+                              <td colSpan={6} style={{ textAlign: 'right' }}>Total Geral de Chapas:</td>
+                              <td>{extracted.totalTraysCount} un.</td>
+                              <td style={{ color: 'var(--brand-dark)', fontSize: 13 }}>{extracted.totalAreaM2.toFixed(2)} m²</td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 3: ESTRUTURAS 3D */}
+                {detailTab === 'structures' && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>
+                        Estruturas Modeladas no SketchUp ({extracted.structures.length})
+                      </span>
+                    </div>
+
+                    {extracted.structures.length === 0 ? (
+                      <div className="project-empty" style={{ minHeight: 180, padding: 24 }}>
+                        <div className="project-empty-icon" style={{ color: '#8b5cf6' }}><Box size={32} /></div>
+                        <h3>Nenhuma estrutura identificada</h3>
+                        <p className="muted" style={{ maxWidth: 480, margin: '6px auto', fontSize: 13 }}>
+                          Crie estruturas (tubos, montantes, gradis) no SketchUp pelo plugin GOACM e publique a revisão para acompanhar aqui no portal.
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+                        {extracted.structures.map((item) => (
+                          <div key={item.id} style={{ background: '#ffffff', border: '1px solid var(--border)', borderRadius: 8, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontWeight: 700, fontSize: 14, color: '#0f172a' }}>
+                                <Box size={16} style={{ color: '#8b5cf6' }} />
+                                {item.name}
+                              </span>
+                              <span className="count-pill">r{item.revision}</span>
+                            </div>
+
+                            <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span>Etiqueta:</span>
+                                <strong style={{ color: 'var(--text)' }}>{item.tags.join(', ') || 'Sem etiqueta'}</strong>
+                              </div>
+                              {item.totalTubes > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <span>Tubos/Barras:</span>
+                                  <strong style={{ color: 'var(--text)' }}>{item.totalTubes} peças</strong>
+                                </div>
+                              )}
+                              {item.totalLengthM !== null && item.totalLengthM > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                  <span>Metros Lineares:</span>
+                                  <strong style={{ color: 'var(--brand-dark)' }}>{item.totalLengthM.toFixed(2)} m</strong>
+                                </div>
+                              )}
+                              {item.profiles.length > 0 && (
+                                <div style={{ marginTop: 4, paddingTop: 6, borderTop: '1px solid var(--border)' }}>
+                                  <span style={{ display: 'block', fontSize: 11, marginBottom: 3 }}>Perfis aplicados:</span>
+                                  <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                    {item.profiles.map((prof, idx) => (
+                                      <span key={idx} style={{ fontSize: 10, background: 'var(--bg-soft)', padding: '2px 6px', borderRadius: 3, border: '1px solid var(--border)' }}>
+                                        {prof}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* TAB 4: LISTA E PLANO DE CORTE (COMPONENTE RETRO-MODERNO IDÊNTICO AO PLUGIN) */}
+                {detailTab === 'cutlist' && (
+                  <CutReportView
+                    cuts={extracted.cuts}
+                    projectName={details.project.name}
+                    modelName={details.publications[0]?.modelName}
+                    onRefresh={loadProjects}
+                  />
+                )}
+
+                {/* TAB 5: HISTÓRICO DE REVISÕES CAD */}
+                {detailTab === 'revisions' && (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)' }}>
+                        Revisões Publicadas pelo Plugin GOACM ({details.publications.length})
+                      </span>
+                    </div>
+
+                    {details.publications.length === 0 ? (
+                      <p className="empty" style={{ padding: '20px 0', fontSize: 13 }}>
+                        Nenhuma versão publicada via SketchUp para este projeto ainda.
+                      </p>
+                    ) : (
+                      <div className="table-wrap" style={{ maxHeight: 380, overflowY: 'auto' }}>
+                        <table className="table">
+                          <thead>
+                            <tr>
+                              <th>Rev.</th>
+                              <th>Modelo / Descrição</th>
+                              <th>Projetista</th>
+                              <th>Data e Hora</th>
+                              <th>Status</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {details.publications.map((pub) => (
+                              <tr key={pub.id}>
+                                <td><span className="count-pill">r{pub.revision}</span></td>
+                                <td>
+                                  <strong>{pub.modelName || 'Modelo SketchUp'}</strong>
+                                  {pub.message && <small className="table-subtitle">{pub.message}</small>}
+                                </td>
+                                <td>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                    <User size={12} style={{ color: 'var(--muted)' }} />
+                                    {pub.authorName || 'Projetista'}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--muted)' }}>
+                                    <Clock size={12} />
+                                    {new Date(pub.publishedAt || pub.createdAt).toLocaleString('pt-BR')}
+                                  </span>
+                                </td>
+                                <td>
+                                  <span className={`badge ${pub.status === 'published' ? 'active' : 'none'}`}>
+                                    {pub.status === 'published' ? 'Publicado' : 'Pendente'}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
                 )}
 

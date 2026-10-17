@@ -11,6 +11,8 @@ export interface Project {
   createdAt: string
   updatedAt: string
   lastPublicationAt: string | null
+  totalAreaM2?: number
+  totalTubesM?: number
 }
 
 export interface ProjectPublication {
@@ -22,6 +24,9 @@ export interface ProjectPublication {
   status: 'pending' | 'published'
   metrics: Record<string, unknown>
   datasets: unknown[]
+  partsSummary?: Record<string, unknown>
+  activity?: unknown[]
+  artifacts?: unknown[]
   createdAt: string
   publishedAt: string | null
 }
@@ -141,6 +146,27 @@ export interface Api {
   /** Falha se a pessoa já tiver um computador ativo. */
   activateDevice(name: string, machineId: string): Promise<Device>
   revokeDevice(id: string): Promise<void>
+  listPluginReleases(): Promise<PluginRelease[]>
+  uploadPluginRelease(data: {
+    version: string
+    notes: string
+    file: File
+    minSketchupVersion?: string
+    isMandatory?: boolean
+  }): Promise<{ success: boolean; release: PluginRelease }>
+}
+
+export interface PluginRelease {
+  id: string
+  version: string
+  notes: string
+  file_url: string
+  file_name?: string
+  file_size_bytes?: number
+  sha256?: string
+  min_sketchup_version?: string
+  is_mandatory?: boolean
+  created_at: string
 }
 
 export const PLAN_LIMITS: Record<Plan, number> = { free: 1, pro: 1, team: 1 }

@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
 
     const [{ data: publications, error: publicationsError }, { data: parts, error: partsError }] = await Promise.all([
       ctx.admin.from('license_project_publications')
-        .select('id,revision,message,model_name,author_name,status,metrics,datasets,created_at,published_at')
+        .select('id,revision,message,model_name,author_name,status,metrics,datasets,parts_summary,activity,artifacts,created_at,published_at')
         .eq('project_id', project.id).eq('account_id', ctx.membership.account_id)
         .order('revision', { ascending: false }).limit(50),
       ctx.admin.from('license_project_parts')

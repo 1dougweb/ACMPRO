@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
@@ -99,6 +99,8 @@ type ProjectRow = {
   created_at: string
   updated_at: string
   last_publication_at?: string | null
+  total_area_m2?: number | string | null
+  total_tubes_m?: number | string | null
 }
 
 function asProject(row: ProjectRow): Project {
@@ -110,6 +112,8 @@ function asProject(row: ProjectRow): Project {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     lastPublicationAt: row.last_publication_at ?? null,
+    totalAreaM2: row.total_area_m2 != null ? Number(row.total_area_m2) : undefined,
+    totalTubesM: row.total_tubes_m != null ? Number(row.total_tubes_m) : undefined,
   }
 }
 
@@ -146,7 +150,21 @@ export const supabaseApi: Api = {
   async getProjectDetails(projectId): Promise<ProjectDetails> {
     const result = await invoke<{
       project: ProjectRow
-      publications: Array<{ id: string; revision: number; message: string; model_name: string; author_name: string; status: 'pending' | 'published'; metrics: Record<string, unknown>; datasets: unknown[]; created_at: string; published_at: string | null }>
+      publications: Array<{
+        id: string
+        revision: number
+        message: string
+        model_name: string
+        author_name: string
+        status: 'pending' | 'published'
+        metrics: Record<string, unknown>
+        datasets: unknown[]
+        parts_summary?: Record<string, unknown>
+        activity?: unknown[]
+        artifacts?: unknown[]
+        created_at: string
+        published_at: string | null
+      }>
       parts: Array<{ id: string; name: string; width_mm: number | string; height_mm: number | string; quantity: number; created_at: string }>
     }>('project-details', { projectId })
     return {
@@ -160,6 +178,9 @@ export const supabaseApi: Api = {
         status: item.status,
         metrics: item.metrics ?? {},
         datasets: item.datasets ?? [],
+        partsSummary: item.parts_summary ?? {},
+        activity: item.activity ?? [],
+        artifacts: item.artifacts ?? [],
         createdAt: item.created_at,
         publishedAt: item.published_at,
       })),
@@ -284,5 +305,52 @@ export const supabaseApi: Api = {
 
   async revokeDevice(id) {
     await invoke('devices-revoke', { deviceId: id })
+  },
+
+  async listPluginReleases(): Promise<PluginRelease[]> {
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/plugin-version?list=true`, {
+        headers: {
+          Authorization: `Bearer ${(await configured().auth.getSession()).data.session?.access_token ?? ''}`,
+        },
+      })
+      if (!res.ok) return []
+      const data = await res.json()
+      return data.releases ?? []
+    } catch {
+      return []
+    }
+  },
+
+  async uploadPluginRelease(data): Promise<{ success: boolean; release: PluginRelease }> {
+    const uploadInit = await invoke<{ upload_url: string; public_url: string; object_path: string }>('plugin-version', {
+      action: 'get_upload_url',
+      version: data.version,
+      file_name: data.file.name,
+    })
+
+    const uploadRes = await fetch(uploadInit.upload_url, {
+      method: 'PUT',
+      body: data.file,
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    })
+    if (!uploadRes.ok) {
+      throw new ApiError('upload_failed', 'Falha ao enviar o arquivo .rbz para o armazenamento.')
+    }
+
+    const regResult = await invoke<{ success: boolean; release: PluginRelease }>('plugin-version', {
+      action: 'register',
+      version: data.version,
+      notes: data.notes,
+      file_url: uploadInit.public_url,
+      file_name: data.file.name,
+      file_size_bytes: data.file.size,
+      min_sketchup_version: data.minSketchupVersion,
+      is_mandatory: data.isMandatory,
+    })
+
+    return regResult
   },
 }

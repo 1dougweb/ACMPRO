@@ -8,8 +8,10 @@ import {
   type Member,
   type OfferKey,
   type Plan,
+  type PluginRelease,
   type Project,
   type ProjectDetails,
+  type ProjectPublication,
   type ProjectStatus,
   type PublicOffers,
   type User,
@@ -153,7 +155,39 @@ export const mockApi: Api = {
     await delay(100)
     const project = (required().projects ?? []).find((item) => item.id === projectId)
     if (!project) throw new ApiError('project_not_found', 'Projeto não encontrado.')
-    return { project, publications: [], parts: [] }
+    const samplePublication: ProjectPublication = {
+      id: `pub-${projectId}-1`,
+      revision: 1,
+      message: 'Publicação de Estruturas e Planificações CAD',
+      modelName: 'Projeto Estrutural.skp',
+      authorName: required().name,
+      status: 'published',
+      metrics: { total_area_m2: 14.8, total_tubes_m: 21.5 },
+      datasets: [
+        {
+          kind: 'metal_cut_list',
+          label: 'Lista de Corte - Gradil Principal',
+          role: 'data',
+          tags: ['Estruturas'],
+          payload: {
+            project_name: project.name,
+            total_pieces: 16,
+            total_meters: 21.497,
+            cut_list: [
+              { metal_name: 'Aço Carbono', color: '#00E100', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 2265.0, qty: 4, section: 'Gradil 1' },
+              { metal_name: 'Aço Carbono', color: '#DC1E28', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 1273.5, qty: 4, section: 'Gradil 1' },
+              { metal_name: 'Aço Carbono', color: '#00B4FF', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 1233.5, qty: 1, section: 'Gradil 1' },
+              { metal_name: 'Aço Carbono', color: '#5A1EFF', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 1122.5, qty: 1, section: 'Gradil 1' },
+              { metal_name: 'Aço Carbono', color: '#FFB42D', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 606.8, qty: 2, section: 'Gradil 1' },
+              { metal_name: 'Aço Carbono', color: '#F0B4FF', tube_desc: 'Tubo Quadrado 20 x 20 - 1.25mm', cut: '—', length_mm: 372.0, qty: 4, section: 'Gradil 1' },
+            ],
+          },
+        },
+      ],
+      createdAt: project.createdAt,
+      publishedAt: project.createdAt,
+    }
+    return { project, publications: [samplePublication], parts: [] }
   },
 
   async getPublicOffers(): Promise<PublicOffers> {
@@ -335,5 +369,38 @@ export const mockApi: Api = {
     const target = db.find((a) => a.id === acc.id)!
     target.devices = target.devices.filter((d) => d.id !== id)
     save(db)
+  },
+
+  async listPluginReleases(): Promise<PluginRelease[]> {
+    await delay()
+    return [
+      {
+        id: 'rel-1',
+        version: '1.1.38',
+        notes: 'Cores atualizadas conforme o portal (Verde Esmeralda), novo layout de impressão e sistema de updates.',
+        file_url: 'https://acmgo.vercel.app/download',
+        file_name: 'GOACM-1.1.38.rbz',
+        file_size_bytes: 4500000,
+        min_sketchup_version: '2021',
+        is_mandatory: false,
+        created_at: new Date().toISOString(),
+      },
+    ]
+  },
+
+  async uploadPluginRelease(data) {
+    await delay(500)
+    const release: PluginRelease = {
+      id: uid(),
+      version: data.version,
+      notes: data.notes,
+      file_url: 'https://acmgo.vercel.app/download',
+      file_name: data.file.name,
+      file_size_bytes: data.file.size,
+      min_sketchup_version: data.minSketchupVersion || '2021',
+      is_mandatory: Boolean(data.isMandatory),
+      created_at: new Date().toISOString(),
+    }
+    return { success: true, release }
   },
 }
