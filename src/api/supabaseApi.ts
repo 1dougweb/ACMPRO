@@ -179,7 +179,7 @@ export const supabaseApi: Api = {
   },
 
   async activateDevice() {
-    throw new ApiError('plugin_activation_only', 'A máquina é ativada ao entrar na sua conta pelo ACMPRO no SketchUp.')
+    throw new ApiError('plugin_activation_only', 'A máquina é ativada ao entrar na sua conta pelo GOACM no SketchUp.')
   },
 
   async revokeDevice(id) {

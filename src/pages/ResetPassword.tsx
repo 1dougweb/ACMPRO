@@ -5,7 +5,7 @@ import AuthShell from '../components/AuthShell'
 import { usePageMeta } from '../lib/usePageMeta'
 
 export default function ResetPassword() {
-  usePageMeta('Definir nova senha', 'Escolha uma nova senha para sua conta ACMPRO.')
+  usePageMeta('Definir nova senha', 'Escolha uma nova senha para sua conta GOACM.')
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [confirmation, setConfirmation] = useState('')

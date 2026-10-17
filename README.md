@@ -1,6 +1,6 @@
-# Portal ACMPRO
+# Portal GOACM
 
-Site público de vendas e portal de clientes ACMPRO em React/Vite. A página de vendas fica na rota inicial; a área de licença fica em `/app`. O usuário entra com Supabase Auth; as informações de conta, licença, equipe e dispositivos são consultadas pelas Edge Functions do projeto Supabase. A função serverless `api/login.js` faz a ponte de compatibilidade do login do plugin para a ativação no Supabase.
+Site público de vendas e portal de clientes GOACM em React/Vite. A página de vendas fica na rota inicial; a área de licença fica em `/app`. O usuário entra com Supabase Auth; as informações de conta, licença, equipe e dispositivos são consultadas pelas Edge Functions do projeto Supabase. A função serverless `api/login.js` faz a ponte de compatibilidade do login do plugin para a ativação no Supabase.
 
 ## Desenvolvimento local
 

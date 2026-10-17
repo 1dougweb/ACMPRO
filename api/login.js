@@ -22,7 +22,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(204).end()
   if (req.method !== 'POST') {
-    return send(res, 405, { error: 'method_not_allowed', message: 'Use POST para entrar no ACMPRO.' })
+    return send(res, 405, { error: 'method_not_allowed', message: 'Use POST para entrar no GOACM.' })
   }
 
   const body = readBody(req.body)
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
   if (!supabaseUrl || !anonKey) {
     return send(res, 503, {
       error: 'license_server_not_configured',
-      message: 'A ativação do ACMPRO ainda não está configurada.',
+      message: 'A ativação do GOACM ainda não está configurada.',
     })
   }
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
   } catch {
     return send(res, 502, {
       error: 'license_server_unavailable',
-      message: 'Não foi possível conectar ao servidor de licenças ACMPRO.',
+      message: 'Não foi possível conectar ao servidor de licenças GOACM.',
     })
   }
 }

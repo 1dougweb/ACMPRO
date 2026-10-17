@@ -5,7 +5,7 @@ import AuthShell from '../components/AuthShell'
 import { usePageMeta } from '../lib/usePageMeta'
 
 export default function ForgotPassword() {
-  usePageMeta('Recuperar senha', 'Receba um link para redefinir sua senha ACMPRO.')
+  usePageMeta('Recuperar senha', 'Receba um link para redefinir sua senha GOACM.')
   const [email, setEmail] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')

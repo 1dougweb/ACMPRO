@@ -6,7 +6,7 @@ import { formatBRL } from '../lib/formatMoney'
 import { usePageMeta } from '../lib/usePageMeta'
 
 export default function Dashboard() {
-  usePageMeta('Licença', 'Plano, validade, equipe e dispositivos da sua licença ACMPRO.')
+  usePageMeta('Licença', 'Plano, validade, equipe e dispositivos da sua licença GOACM.')
   const [license, setLicense] = useState<License | null>(null)
   const [devices, setDevices] = useState<Device[]>([])
   const [offers, setOffers] = useState<PublicOffers | null>(null)
@@ -165,12 +165,12 @@ export default function Dashboard() {
 
       <section className="card activation-card">
         <div>
-          <h2>{hasSubscription ? 'Use o ACMPRO no SketchUp' : license.status === 'pending' ? 'Pagamento em processamento' : 'Ative sua licença ACMPRO'}</h2>
+          <h2>{hasSubscription ? 'Use o GOACM no SketchUp' : license.status === 'pending' ? 'Pagamento em processamento' : 'Ative sua licença GOACM'}</h2>
           <p className="muted">{hasSubscription
             ? 'Entre no plugin do SketchUp com o mesmo e-mail e senha usados neste portal. A licença é emitida pelo servidor e não precisa ser copiada.'
             : license.status === 'pending'
               ? 'A liberação acontece depois que o Mercado Pago confirmar a autorização da assinatura. Durante o teste grátis, a cobrança ainda não foi feita; atualize esta página em instantes.'
-              : 'Escolha o plano atual do ACMPRO. Depois da confirmação do Mercado Pago, use no SketchUp o mesmo e-mail e senha desta conta.'}</p>
+              : 'Escolha o plano atual do GOACM. Depois da confirmação do Mercado Pago, use no SketchUp o mesmo e-mail e senha desta conta.'}</p>
         </div>
         {!hasSubscription && license.role === 'owner' && (
           <div className="checkout-actions">

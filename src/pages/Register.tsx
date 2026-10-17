@@ -19,7 +19,7 @@ const schema = z.object({
 type Form = z.infer<typeof schema>
 
 export default function Register() {
-  usePageMeta('Criar conta', 'Crie sua conta para gerenciar sua licença ACMPRO.')
+  usePageMeta('Criar conta', 'Crie sua conta para gerenciar sua licença GOACM.')
   const { register: signUp } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -47,7 +47,7 @@ export default function Register() {
   }
 
   return (
-    <AuthShell title="Criar conta" subtitle="Crie seu acesso para ativar e gerenciar a licença ACMPRO.">
+    <AuthShell title="Criar conta" subtitle="Crie seu acesso para ativar e gerenciar a licença GOACM.">
       <form onSubmit={handleSubmit(onSubmit)} noValidate>
         <label className="field" htmlFor="reg-name">Nome</label>
         <input id="reg-name" autoComplete="name" placeholder="Seu nome" {...register('name')} />

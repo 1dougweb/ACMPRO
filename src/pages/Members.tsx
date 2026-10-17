@@ -5,7 +5,7 @@ import { usePageMeta } from '../lib/usePageMeta'
 const statusLabel = { active: 'Ativo', invited: 'Convite enviado', removed: 'Removido' } satisfies Record<Member['status'], string>
 
 export default function Members() {
-  usePageMeta('Equipe', 'Convide e gerencie os acessos da equipe ACMPRO.')
+  usePageMeta('Equipe', 'Convide e gerencie os acessos da equipe GOACM.')
   const [members, setMembers] = useState<Member[]>([])
   const [license, setLicense] = useState<License | null>(null)
   const [email, setEmail] = useState('')

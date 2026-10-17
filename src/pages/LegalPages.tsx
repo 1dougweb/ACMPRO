@@ -6,11 +6,11 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
   return (
     <main className="legal-page">
       <header className="legal-nav">
-        <Link className="sales-brand" to="/" aria-label="ACMPRO início"><img src="/acmpro-logo.svg" alt="ACMPRO" /></Link>
+        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
         <Link to="/">Voltar ao site</Link>
       </header>
       <article className="legal-content">
-        <div className="sales-eyebrow">ACMPRO</div>
+        <div className="sales-eyebrow">GOACM</div>
         <h1>{title}</h1>
         <p className="legal-updated">Atualizado em 16 de outubro de 2026</p>
         {children}
@@ -21,10 +21,10 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
 }
 
 export function TermsPage() {
-  usePageMeta('Termos de Uso', 'Condições dos planos, pagamentos, licenças e suporte ACMPRO.')
+  usePageMeta('Termos de Uso', 'Condições dos planos, pagamentos, licenças e suporte GOACM.')
   return (
     <LegalLayout title="Termos de Uso">
-      <p>Estes termos explicam as condições para usar o plugin ACMPRO, o painel de projetos, o treinamento e o suporte incluídos na assinatura. Ao criar uma conta ou contratar um plano, você concorda com estas condições.</p>
+      <p>Estes termos explicam as condições para usar o plugin GOACM, o painel de projetos, o treinamento e o suporte incluídos na assinatura. Ao criar uma conta ou contratar um plano, você concorda com estas condições.</p>
 
       <h2>Planos e pagamento</h2>
       <p>O plano Pro mensal custa R$ 97 por mês no cartão. Novos assinantes têm 7 dias de teste grátis após a autorização da assinatura no Mercado Pago; a primeira cobrança ocorre ao final do teste, se a renovação não for cancelada antes.</p>
@@ -36,10 +36,10 @@ export function TermsPage() {
 
       <h2>Licença e acessos</h2>
       <p>O plano inclui até três pessoas: titular e dois membros. Cada pessoa deve usar seu próprio e-mail e pode autorizar um computador. Para trocar de máquina, revogue o computador anterior no portal e entre novamente pelo plugin.</p>
-      <p>A licença do SketchUp é contratada separadamente. O suporte ACMPRO responde dúvidas sobre o plugin e o treinamento; não inclui consultoria nem criação ou revisão de projetos.</p>
+      <p>A licença do SketchUp é contratada separadamente. O suporte GOACM responde dúvidas sobre o plugin e o treinamento; não inclui consultoria nem criação ou revisão de projetos.</p>
 
       <h2>Uso e propriedade intelectual</h2>
-      <p>O software, a marca, o treinamento e os materiais ACMPRO pertencem ao ACMPRO ou a seus licenciadores. Não é permitido copiar, redistribuir, alterar ou tentar fazer engenharia reversa do software, nem usar o serviço para fins ilegais ou para prejudicar seu funcionamento.</p>
+      <p>O software, a marca, o treinamento e os materiais GOACM pertencem ao GOACM ou a seus licenciadores. Não é permitido copiar, redistribuir, alterar ou tentar fazer engenharia reversa do software, nem usar o serviço para fins ilegais ou para prejudicar seu funcionamento.</p>
 
       <h2>Contato</h2>
       <p>Para dúvidas sobre estes termos, escreva para <a href="mailto:suporte@acm360.com.br">suporte@acm360.com.br</a>.</p>
@@ -48,17 +48,17 @@ export function TermsPage() {
 }
 
 export function PrivacyPage() {
-  usePageMeta('Política de Privacidade', 'Como o ACMPRO trata os dados de conta, licença e pagamento.')
+  usePageMeta('Política de Privacidade', 'Como o GOACM trata os dados de conta, licença e pagamento.')
   return (
     <LegalLayout title="Política de Privacidade">
-      <p>Esta política descreve os dados usados para fornecer o portal, o plugin, os planos e o suporte ACMPRO.</p>
+      <p>Esta política descreve os dados usados para fornecer o portal, o plugin, os planos e o suporte GOACM.</p>
 
       <h2>Dados tratados</h2>
       <ul>
         <li>Cadastro e conta: nome, e-mail, credenciais de autenticação e estado de confirmação do e-mail.</li>
         <li>Equipe: e-mails de convite, função e estado de cada acesso na conta.</li>
         <li>Licença: identificador e nome do computador, data de ativação e último acesso do plugin.</li>
-        <li>Assinatura e pagamento: plano, valor, datas, estado e identificadores de transação. Os dados do cartão são tratados pelo Mercado Pago e não são armazenados pelo ACMPRO.</li>
+        <li>Assinatura e pagamento: plano, valor, datas, estado e identificadores de transação. Os dados do cartão são tratados pelo Mercado Pago e não são armazenados pelo GOACM.</li>
         <li>Dados técnicos necessários para proteger e operar o serviço, como registros de acesso mantidos pelos provedores de hospedagem e autenticação.</li>
       </ul>
 

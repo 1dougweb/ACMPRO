@@ -35,7 +35,7 @@ export default function Devices() {
 
       <section className="card">
         <h2>Trocar de computador</h2>
-        <p className="muted">Cada pessoa pode autorizar 1 computador. Para trocar, revogue o computador anterior e entre no plugin ACMPRO pela nova máquina com o mesmo e-mail e senha usados no portal.</p>
+        <p className="muted">Cada pessoa pode autorizar 1 computador. Para trocar, revogue o computador anterior e entre no plugin GOACM pela nova máquina com o mesmo e-mail e senha usados no portal.</p>
         {error && <div className="alert" role="alert">{error}</div>}
       </section>
 

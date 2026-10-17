@@ -25,7 +25,7 @@ export default function Landing() {
   return (
     <main className="sales-page">
       <header className="sales-nav">
-        <Link className="sales-brand" to="/" aria-label="ACMPRO início"><img src="/acmpro-logo.svg" alt="ACMPRO" /></Link>
+        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
         <nav className="sales-nav-links" aria-label="Navegação do site">
           <a href="#recursos">O plugin</a><a href="#incluido">O que está incluído</a><a href="#planos">Planos</a>
         </nav>
@@ -39,14 +39,14 @@ export default function Landing() {
         <div className="sales-hero-copy">
           <div className="sales-eyebrow"><span /> Plugin SketchUp · treinamento · suporte</div>
           <h1>Do modelo 3D à <em>produção.</em></h1>
-          <p className="sales-lead">Modele estruturas e fachadas no SketchUp, extraia informações do projeto e aprenda a preparar a documentação para produção — com o ACMPRO ao seu lado.</p>
-          <div className="sales-hero-actions"><a className="sales-button" href="#planos">Ver planos e preços</a><a className="sales-button sales-button-quiet" href="#recursos">Conhecer o ACMPRO <span aria-hidden="true">↓</span></a></div>
+          <p className="sales-lead">Modele estruturas e fachadas no SketchUp, extraia informações do projeto e aprenda a preparar a documentação para produção — com o GOACM ao seu lado.</p>
+          <div className="sales-hero-actions"><a className="sales-button" href="#planos">Ver planos e preços</a><a className="sales-button sales-button-quiet" href="#recursos">Conhecer o GOACM <span aria-hidden="true">↓</span></a></div>
           <div className="sales-trust-row"><span>✓ 3 acessos por conta</span><span>✓ 1 computador por pessoa</span><span>✓ Treinamento e suporte incluídos</span></div>
         </div>
 
-        <div className="sales-preview" aria-label="Ilustração do fluxo de projeto no ACMPRO">
+        <div className="sales-preview" aria-label="Ilustração do fluxo de projeto no GOACM">
           <div className="sales-preview-window">
-            <div className="sales-preview-bar"><div className="sales-window-dots"><i /><i /><i /></div><span>ACMPRO <b>/</b> Projeto fachada · exemplo</span><span className="sales-live-pill">ILUSTRATIVO</span></div>
+            <div className="sales-preview-bar"><div className="sales-window-dots"><i /><i /><i /></div><span>GOACM <b>/</b> Projeto fachada · exemplo</span><span className="sales-live-pill">ILUSTRATIVO</span></div>
             <div className="sales-preview-body">
               <div className="sales-model-canvas">
                 <div className="sales-canvas-label">MODELO 3D <span>01 — 03</span></div>
@@ -70,14 +70,14 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="sales-metrics" aria-label="O plano ACMPRO inclui">
+      <section className="sales-metrics" aria-label="O plano GOACM inclui">
         <div><b>01</b><span>plugin para SketchUp</span></div><div><b>02</b><span>membros além do titular</span></div><div><b>100%</b><span>treinamento e suporte incluídos</span></div>
       </section>
 
       <section className="sales-section" id="recursos">
         <div className="sales-section-heading">
           <div><div className="sales-eyebrow">O fluxo de trabalho</div><h2>Mais clareza entre o projeto <em>e a execução.</em></h2></div>
-          <p>O ACMPRO reúne ferramentas de modelagem e planejamento para ajudar você a levar o projeto do SketchUp para a documentação de produção.</p>
+          <p>O GOACM reúne ferramentas de modelagem e planejamento para ajudar você a levar o projeto do SketchUp para a documentação de produção.</p>
         </div>
         <div className="sales-feature-grid">
           <article className="sales-feature-card sales-feature-main">
@@ -105,7 +105,7 @@ export default function Landing() {
           <a className="sales-text-link" href="#planos">Conhecer os planos <span aria-hidden="true">↗</span></a>
         </div>
         <div className="sales-included-list">
-          <article><span>01</span><div><h3>Plugin ACMPRO para SketchUp</h3><p>Modelagem de estruturas, quantitativos, planificação e planos de corte.</p></div><b>✓</b></article>
+          <article><span>01</span><div><h3>Plugin GOACM para SketchUp</h3><p>Modelagem de estruturas, quantitativos, planificação e planos de corte.</p></div><b>✓</b></article>
           <article><span>02</span><div><h3>Painel de gestão de projetos</h3><p>Organize os projetos e acompanhe as informações publicadas pelo plugin.</p></div><b>✓</b></article>
           <article><span>03</span><div><h3>Treinamento do básico à documentação</h3><p>SketchUp, detalhamento técnico e organização de pranchas no LayOut.</p></div><b>✓</b></article>
           <article><span>04</span><div><h3>Suporte e grupo VIP</h3><p>Dúvidas sobre o plugin e as aulas, inclusive pelo WhatsApp. Não inclui consultoria nem criação ou revisão de projetos.</p></div><b>✓</b></article>
@@ -114,13 +114,13 @@ export default function Landing() {
       </section>
 
       <section className="sales-pricing" id="planos">
-        <div className="sales-pricing-heading"><div className="sales-eyebrow">Escolha sua forma de pagamento</div><h2>Seu próximo projeto começa <em>aqui.</em></h2><p>Todos os recursos, treinamento e suporte ACMPRO incluídos nos dois planos.</p></div>
+        <div className="sales-pricing-heading"><div className="sales-eyebrow">Escolha sua forma de pagamento</div><h2>Seu próximo projeto começa <em>aqui.</em></h2><p>Todos os recursos, treinamento e suporte GOACM incluídos nos dois planos.</p></div>
         <div className="sales-plan-grid">
           <article className="sales-plan-card sales-plan-featured">
             <div className="sales-plan-top"><span>MAIS FLEXÍVEL</span><span>01 / 02</span></div><h3>Pro mensal</h3><p>Para começar e pagar mês a mês.</p>
             <div className="sales-price"><strong>{offers ? formatBRL(offers.monthlyAmountCents) : '—'}</strong><span>/ mês</span></div>
             <div className="sales-plan-note">{offers?.monthlyTrialDays ? `${offers.monthlyTrialDays} dias grátis; depois cobrança recorrente no cartão. Cancele antes da primeira cobrança pelo portal.` : 'Cobrança recorrente no cartão. Cancele a renovação pelo portal.'}</div>
-            <ul><li>Plugin ACMPRO para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
+            <ul><li>Plugin GOACM para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
             {offers
               ? <Link className="sales-button" to={monthlyHref}>Assinar plano mensal <span aria-hidden="true">→</span></Link>
               : <button className="sales-button" disabled>{offersError ? 'Plano indisponível' : 'Carregando preço…'}</button>}
@@ -129,7 +129,7 @@ export default function Landing() {
             <div className="sales-plan-top"><span>À VISTA</span><span>02 / 02</span></div><h3>Pro anual</h3><p>Um pagamento para doze meses de acesso.</p>
             <div className="sales-price"><strong>{offers?.annualAmountCents ? formatBRL(offers.annualAmountCents) : '—'}</strong><span>/ ano</span></div>
             <div className="sales-plan-note">Pagamento único via Pix. Sem renovação automática.</div>
-            <ul><li>Plugin ACMPRO para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
+            <ul><li>Plugin GOACM para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
             {offers?.annualAmountCents
               ? <Link className="sales-button sales-button-quiet" to={annualHref}>Comprar plano anual via Pix <span aria-hidden="true">→</span></Link>
               : <button className="sales-button sales-button-quiet" disabled>{offersError ? 'Plano indisponível' : 'Carregando preço…'}</button>}
@@ -137,28 +137,28 @@ export default function Landing() {
         </div>
         {offersError === 'project_mismatch' && <p className="sales-pricing-error" role="status">A conexão do portal está em configuração. Os planos ficarão disponíveis quando o portal e o plugin estiverem ligados ao mesmo serviço de licença.</p>}
         {offersError === 'unavailable' && <p className="sales-pricing-error" role="status">Não foi possível carregar os preços agora. Atualize a página para tentar novamente.</p>}
-        <p className="sales-pricing-footnote">A licença do SketchUp é contratada separadamente. O plano ACMPRO inclui o plugin, treinamento e suporte.</p>
+        <p className="sales-pricing-footnote">A licença do SketchUp é contratada separadamente. O plano GOACM inclui o plugin, treinamento e suporte.</p>
       </section>
 
       <section className="sales-faq" aria-labelledby="sales-faq-title">
         <div className="sales-faq-heading"><div className="sales-eyebrow">Dúvidas comuns</div><h2 id="sales-faq-title">Antes de começar.</h2></div>
         <div className="sales-faq-list">
           <details><summary>Preciso saber usar SketchUp?</summary><p>Não. O treinamento começa pelos fundamentos e avança até a documentação técnica e as pranchas no LayOut.</p></details>
-          <details><summary>A licença do SketchUp está incluída?</summary><p>Não. O plano inclui o plugin ACMPRO, o treinamento e o suporte. A licença do SketchUp é separada.</p></details>
+          <details><summary>A licença do SketchUp está incluída?</summary><p>Não. O plano inclui o plugin GOACM, o treinamento e o suporte. A licença do SketchUp é separada.</p></details>
           <details><summary>Como funciona o plano mensal?</summary><p>{offers?.monthlyTrialDays ? `${offers.monthlyTrialDays} dias de teste grátis após autorizar a assinatura no Mercado Pago. Depois, o cartão é cobrado mensalmente de forma recorrente. Cancele pelo portal antes do fim do teste para evitar a primeira cobrança.` : 'O cartão é cobrado mensalmente de forma recorrente. Você pode cancelar a renovação pelo portal; o acesso continua até o fim do período pago.'}</p></details>
           <details><summary>Como funciona o plano anual?</summary><p>O pagamento é feito uma vez via Pix e não há renovação automática.</p></details>
           <details><summary>Em quantos computadores posso usar?</summary><p>Cada pessoa da conta pode autorizar 1 computador. O plano inclui até três pessoas: titular e dois membros.</p></details>
           <details><summary>O que está incluído no suporte?</summary><p>O suporte ajuda com dúvidas sobre o plugin e o treinamento. Não inclui consultoria nem criação ou revisão de projetos.</p></details>
-          <details><summary>Como funciona o direito de arrependimento?</summary><p>Você pode desistir em até 7 dias da contratação e solicitar reembolso integral do valor pago pelo suporte ACMPRO, conforme as condições dos Termos de Uso.</p></details>
+          <details><summary>Como funciona o direito de arrependimento?</summary><p>Você pode desistir em até 7 dias da contratação e solicitar reembolso integral do valor pago pelo suporte GOACM, conforme as condições dos Termos de Uso.</p></details>
           <details><summary>O treinamento monta as pranchas automaticamente?</summary><p>Não. Você aprende a organizar e montar as pranchas no LayOut durante o treinamento.</p></details>
         </div>
       </section>
 
       <footer className="sales-footer">
-        <Link className="sales-brand" to="/" aria-label="ACMPRO início"><img src="/acmpro-logo.svg" alt="ACMPRO" /></Link>
+        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
         <p>Plugin, treinamento e suporte para projetos no SketchUp.</p>
         <div><Link to="/login">Entrar</Link><Link to="/register">Criar conta</Link><Link to="/terms">Termos</Link><Link to="/privacy">Privacidade</Link></div>
-        <small>© {new Date().getFullYear()} ACMPRO</small>
+        <small>© {new Date().getFullYear()} GOACM</small>
       </footer>
     </main>
   )
