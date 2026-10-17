@@ -1,6 +1,6 @@
 import { accountMembership, requestContext } from '../_shared/auth.ts'
 import { errorMessage, preflight, respond } from '../_shared/http.ts'
-import { centsToAmount, mercadoPagoRequest, portalUrl, positiveIntegerEnv, webhookUrl } from '../_shared/mercadopago.ts'
+import { centsToAmount, MercadoPagoApiError, mercadoPagoRequest, portalUrl, positiveIntegerEnv, webhookUrl } from '../_shared/mercadopago.ts'
 
 interface Body { offerKey?: 'pro_monthly' | 'pro_annual' }
 interface MercadoPagoCheckout {
@@ -189,9 +189,8 @@ Deno.serve(async (req) => {
           }],
           payer: { email: ctx.user.email },
           payment_methods: {
-            default_payment_method_id: 'pix',
             excluded_payment_types: [
-              { id: 'account_money' }, { id: 'atm' }, { id: 'credit_card' },
+              { id: 'atm' }, { id: 'credit_card' },
               { id: 'debit_card' }, { id: 'digital_currency' }, { id: 'prepaid_card' }, { id: 'ticket' },
             ],
           },
@@ -222,6 +221,19 @@ Deno.serve(async (req) => {
     }
   } catch (error) {
     console.error('checkout-start failed', errorMessage(error))
+    if (error instanceof MercadoPagoApiError) {
+      const diagnosticCode = [
+        `mp_${error.status}`,
+        error.providerError,
+        ...error.causeCodes,
+      ].filter(Boolean).join('_')
+      return respond(req, {
+        error: `checkout_start_failed_${diagnosticCode}`,
+        message: 'Não foi possível abrir o checkout agora.',
+        providerStatus: error.status,
+        providerCauseCodes: error.causeCodes,
+      }, 502)
+    }
     return respond(req, { error: 'checkout_start_failed', message: 'Não foi possível abrir o checkout agora.' }, 502)
   }
 })

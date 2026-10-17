@@ -1,5 +1,16 @@
 const encoder = new TextEncoder()
 
+export class MercadoPagoApiError extends Error {
+  constructor(
+    readonly status: number,
+    readonly providerError: string | null,
+    readonly causeCodes: string[],
+  ) {
+    super(`Mercado Pago API returned ${status}.`)
+    this.name = 'MercadoPagoApiError'
+  }
+}
+
 export async function mercadoPagoRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const accessToken = Deno.env.get('MP_ACCESS_TOKEN')
   if (!accessToken) throw new Error('Mercado Pago access token is not configured.')
@@ -14,9 +25,21 @@ export async function mercadoPagoRequest<T>(path: string, init: RequestInit = {}
   })
 
   if (!response.ok) {
-    await response.text().catch(() => '')
-    console.error('Mercado Pago API request failed', response.status)
-    throw new Error(`Mercado Pago API returned ${response.status}.`)
+    const payload = await response.json().catch(() => null) as {
+      error?: unknown
+      cause?: Array<{ code?: unknown }>
+    } | null
+    const providerError = typeof payload?.error === 'string' && /^[a-z0-9_-]{1,80}$/i.test(payload.error)
+      ? payload.error
+      : null
+    const causeCodes = (Array.isArray(payload?.cause) ? payload.cause : [])
+      .map((cause) => cause?.code)
+      .filter((code): code is number | string => typeof code === 'number' || typeof code === 'string')
+      .map(String)
+      .filter((code) => /^\d{1,12}$/.test(code))
+      .slice(0, 5)
+    console.error('Mercado Pago API request failed', response.status, providerError ?? '', causeCodes.join(','))
+    throw new MercadoPagoApiError(response.status, providerError, causeCodes)
   }
   const raw = await response.text()
   return raw ? JSON.parse(raw) as T : undefined as T
