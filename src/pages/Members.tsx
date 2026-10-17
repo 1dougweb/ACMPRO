@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
+import { Navigate, useOutletContext } from 'react-router-dom'
 import { Users, UserPlus, Laptop, Trash2, AlertCircle, CheckCircle2, Clock, Monitor, RefreshCw, ShieldCheck } from 'lucide-react'
 import { api, type Device, type License, type Member, type PreferredLocale } from '../api'
 import { usePageMeta } from '../lib/usePageMeta'
@@ -7,6 +8,10 @@ const statusLabel = { active: 'Ativo', invited: 'Convite enviado', removed: 'Rem
 
 export default function Members() {
   usePageMeta('Equipe e dispositivos', 'Gerencie as pessoas e máquinas vinculadas à sua licença GOACM.')
+  const context = useOutletContext<{ hasActivePlan?: boolean } | null>()
+  if (context && context.hasActivePlan === false) {
+    return <Navigate to="/app/plans" replace />
+  }
   const [members, setMembers] = useState<Member[]>([])
   const [devices, setDevices] = useState<Device[]>([])
   const [license, setLicense] = useState<License | null>(null)

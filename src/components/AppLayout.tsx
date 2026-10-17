@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { Link, NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { FolderKanban, GraduationCap, Users, CreditCard, User, ShieldCheck, LogOut, Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { api } from '../api'
@@ -69,6 +69,11 @@ export default function AppLayout() {
         <Loader2 size={28} className="spin" style={{ animation: 'spin 1s linear infinite', color: '#10b981' }} />
       </div>
     )
+  }
+
+  const isPlansOrAdmin = location.pathname === '/app/plans' || location.pathname.startsWith('/app/admin')
+  if (!hasActivePlan && !isPlansOrAdmin) {
+    return <Navigate to="/app/plans" replace />
   }
 
   return <>

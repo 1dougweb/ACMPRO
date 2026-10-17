@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate, useOutletContext } from 'react-router-dom'
 import {
   GraduationCap,
   BookOpen,
@@ -35,6 +36,10 @@ const totalLessons = 35
 
 export default function Training() {
   usePageMeta('Treinamentos', 'Aulas e treinamentos GOACM.')
+  const context = useOutletContext<{ hasActivePlan?: boolean } | null>()
+  if (context && context.hasActivePlan === false) {
+    return <Navigate to="/app/plans" replace />
+  }
   const [selected, setSelected] = useState<Lesson | null>(null)
   const completed = 0
   const percentage = 0

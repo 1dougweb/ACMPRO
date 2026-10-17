@@ -54,8 +54,8 @@ export default function Admin() {
       .then((data) => {
         if (active) setReleases(data)
       })
-      .catch((err) => {
-        console.warn('Erro ao carregar releases:', err)
+      .catch(() => {
+        // Silently handle error without exposing in console
       })
       .finally(() => {
         if (active) setReleasesLoading(false)

@@ -10,6 +10,28 @@ Deno.serve(async (req) => {
   try {
     const member = await accountMembership(ctx)
     if (!member) return respond(req, { error: 'account_missing', message: 'A conta ainda não está vinculada.' }, 404)
+
+    const [{ data: subscription, error: subscriptionError }, { data: entitlement, error: entitlementError }] = await Promise.all([
+      ctx.admin.from('license_subscriptions')
+        .select('id,status,current_period_end')
+        .eq('account_id', member.account_id)
+        .in('status', ['active', 'past_due', 'canceled'])
+        .order('current_period_end', { ascending: false, nullsFirst: false })
+        .limit(1),
+      ctx.admin.from('license_account_entitlements')
+        .select('entitlement')
+        .eq('account_id', member.account_id)
+        .eq('entitlement', 'lifetime')
+        .maybeSingle(),
+    ])
+    if (subscriptionError ?? entitlementError) throw subscriptionError ?? entitlementError
+
+    const currentLicense = subscription?.[0]
+    const lifetime = entitlement?.entitlement === 'lifetime'
+    if (!lifetime && (!currentLicense?.current_period_end || new Date(currentLicense.current_period_end).getTime() <= Date.now())) {
+      return respond(req, { error: 'active_license_required', message: 'A equipe fica disponível enquanto a licença Pro estiver ativa.' }, 403)
+    }
+
     const { data, error } = await ctx.admin.from('license_members')
       .select('id,email,display_name,role,status,created_at')
       .eq('account_id', member.account_id)

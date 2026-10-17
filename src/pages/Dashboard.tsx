@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useOutletContext } from 'react-router-dom'
 import {
   Plus,
   FolderKanban,
@@ -55,6 +55,10 @@ const statusBadgeClass: Record<ProjectStatus, string> = {
 
 export default function Dashboard() {
   usePageMeta('Projetos', 'Acompanhe seus projetos GOACM.')
+  const context = useOutletContext<{ hasActivePlan?: boolean } | null>()
+  if (context && context.hasActivePlan === false) {
+    return <Navigate to="/app/plans" replace />
+  }
 
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
