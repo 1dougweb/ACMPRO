@@ -5,6 +5,7 @@ import { useAuth } from '../auth/AuthContext'
 
 export default function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, updateProfile } = useAuth()
+  const [name, setName] = useState(user?.name ?? '')
   const [phone, setPhone] = useState(user?.phone ?? '')
   const [devices, setDevices] = useState<Device[]>([])
   const [license, setLicense] = useState<License | null>(null)
@@ -29,7 +30,7 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
 
   const save = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setBusy(true); setError(''); setNotice('')
-    try { await updateProfile({ name: user?.name ?? '', phone }); setNotice('Perfil atualizado.') }
+    try { await updateProfile({ name, phone }); setNotice('Perfil atualizado.') }
     catch (err) { setError((err as Error).message) }
     finally { setBusy(false) }
   }
@@ -56,6 +57,7 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
       <div className="profile-modal-heading"><span className="profile-alert-icon" aria-hidden="true">!</span><div><h2 id="profile-title">Meu Perfil</h2><p className="muted">Gerencie suas informações pessoais e os dispositivos conectados.</p></div></div>
       {error && <div className="alert" role="alert">{error}</div>}{notice && <div className="success" role="status">{notice}</div>}
       <form className="profile-form" onSubmit={(event) => void save(event)}>
+        <label className="field">Nome<input value={name} onChange={(event) => setName(event.target.value)} required /></label>
         <label className="field">E-mail<input value={user?.email ?? ''} readOnly disabled /></label>
         <label className="field">Telefone<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(00) 00000-0000" /></label>
         <div className="profile-action-row"><div><strong>Senha</strong><span>Altere sua senha de acesso</span></div><button type="button" className="btn" onClick={() => setShowPassword((value) => !value)}>Alterar senha</button></div>

@@ -333,16 +333,12 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 
 /* GOACM portal workspace */
 .topbar-inner { max-width: 1360px; }
-.container:has(.projects-page), .container:has(.training-page) { max-width: 1368px; padding-top: 26px; }
-.container:has(.team-page), .container:has(.plans-page) { max-width: 1360px; padding-top: 26px; }
+.container:has(.projects-page), .container:has(.training-page), .container:has(.team-page), .container:has(.plans-page) { max-width: 1360px; padding-top: 26px; }
 .topbar nav a { white-space: nowrap; }
-.menu { width: 240px; border-radius: 0; box-shadow: 0 5px 14px rgba(24,34,48,.12); }
-.menu-head { padding: 10px 12px; border-bottom-color: #1d385b; }
-.menu-item { min-height: 34px; display: flex; align-items: center; gap: 9px; padding: 7px 12px; border-radius: 0; font-size: 13px; font-weight: 450; text-decoration: none; }
+.menu { width: 256px; box-shadow: 0 8px 24px rgba(24,34,48,.12); }
+.menu-item { display: block; text-decoration: none; }
 .menu-item:hover { text-decoration: none; }
-.menu-divider { height: 1px; margin: 3px 0; background: #1d385b; }
-.menu-icon { width: 16px; height: 16px; flex: 0 0 16px; color: #263d58; }
-.menu-item.danger .menu-icon { color: var(--danger); }
+.menu-divider { height: 1px; margin: 3px 0; background: var(--border); }
 
 .projects-page { min-height: calc(100vh - 130px); padding: 2px 4px 28px; color: #19314e; }
 .projects-breadcrumb { display: flex; align-items: center; gap: 11px; color: #8b9caf; font-size: 12px; margin: 0 0 22px; }
@@ -424,7 +420,7 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .team-device-table .btn { border-radius: 2px; }
 .team-page .empty { padding: 24px 0; font-size: 12px; }
 
-.training-page { max-width: 100%; margin: 0 auto; color: #19314e; }
+.training-page { max-width: 1080px; margin: 0 auto; color: #19314e; }
 .training-heading { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 21px; }
 .training-heading .page-title { font-size: 24px; }
 .training-heading .muted { margin: 5px 0 0; }
@@ -480,7 +476,7 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .plans-help a { font-size: 12px; }
 
 .modal-backdrop { position: fixed; inset: 0; z-index: 50; display: flex; justify-content: center; align-items: center; padding: 20px; background: rgba(15,27,43,.52); }
-.profile-modal { position: relative; width: min(600px, 100%); max-height: min(90vh, 900px); overflow-y: auto; padding: 26px; color: #19314e; background: #f4f6f9; border: 1px solid #dbe2e9; border-radius: 5px; }
+.profile-modal { position: relative; width: min(600px, 100%); max-height: min(90vh, 900px); overflow-y: auto; padding: 26px; color: #19314e; background: #fff; border: 1px solid #dbe2e9; border-radius: 5px; }
 .profile-modal .modal-close { position: absolute; top: 15px; right: 15px; width: 30px; height: 30px; color: #60748b; background: #fff; border: 1px solid #dbe2e9; border-radius: 50%; font-size: 21px; line-height: 1; cursor: pointer; }
 .profile-modal .btn.primary { color: #fff; background: #1d385b; border-color: #1d385b; }
 .profile-modal .btn.primary:hover { background: #142b49; }
@@ -500,7 +496,6 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .password-change .field { flex: 1; }
 .profile-form-actions { display: flex; justify-content: flex-end; padding: 6px 0 17px; }
 .profile-devices { padding: 18px 17px; border: 1px solid #dce4eb; border-radius: 3px; }
-.profile-devices { background: #fff; }
 .profile-devices-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .profile-devices-heading h3 { margin: 0 0 4px; font-size: 13px; font-weight: 500; }
 .profile-devices-heading .muted { margin: 0; font-size: 11px; }
