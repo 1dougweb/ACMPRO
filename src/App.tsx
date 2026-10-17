@@ -13,6 +13,7 @@ import { PrivacyPage, TermsPage } from './pages/LegalPages'
 import Admin from './pages/Admin'
 import Training from './pages/Training'
 import Plans from './pages/Plans'
+import AuthCallback from './pages/AuthCallback'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/app" element={<ProtectedRoute />}>

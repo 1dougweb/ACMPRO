@@ -9,6 +9,7 @@ import {
   type OfferKey,
   type Plan,
   type PluginRelease,
+  type LatestPluginRelease,
   type Project,
   type ProjectDetails,
   type ProjectPublication,
@@ -386,6 +387,24 @@ export const mockApi: Api = {
         created_at: new Date().toISOString(),
       },
     ]
+  },
+
+  async getLatestPluginRelease(): Promise<LatestPluginRelease | null> {
+    await delay()
+    return {
+      version: '1.1.44',
+      downloadUrl: 'https://dqwrxsbekfeyzbzvnubg.supabase.co/storage/v1/object/public/plugin-releases/releases/1792276608596_GOACM-1.1.44.rbz',
+      fileName: 'GOACM-1.1.44.rbz',
+      notes: 'Versão oficial mais recente do ACMGO.',
+    }
+  },
+
+  async loginWithGoogle(): Promise<void> {
+    await delay(300)
+    const acc = load()[0]
+    if (acc) {
+      localStorage.setItem(SESSION, acc.id)
+    }
   },
 
   async uploadPluginRelease(data) {

@@ -147,6 +147,8 @@ export interface Api {
   activateDevice(name: string, machineId: string): Promise<Device>
   revokeDevice(id: string): Promise<void>
   listPluginReleases(): Promise<PluginRelease[]>
+  getLatestPluginRelease(): Promise<LatestPluginRelease | null>
+  loginWithGoogle(): Promise<void>
   uploadPluginRelease(data: {
     version: string
     notes: string
@@ -154,6 +156,13 @@ export interface Api {
     minSketchupVersion?: string
     isMandatory?: boolean
   }): Promise<{ success: boolean; release: PluginRelease }>
+}
+
+export interface LatestPluginRelease {
+  version: string
+  downloadUrl: string
+  fileName?: string
+  notes?: string
 }
 
 export interface PluginRelease {

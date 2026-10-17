@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type LatestPluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
@@ -322,6 +322,40 @@ export const supabaseApi: Api = {
     } catch {
       return []
     }
+  },
+
+  async getLatestPluginRelease(): Promise<LatestPluginRelease | null> {
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/plugin-version`)
+      if (!res.ok) return null
+      const data = await res.json()
+      if (!data || !data.success || !data.download_url) return null
+      return {
+        version: data.version,
+        downloadUrl: data.download_url,
+        fileName: data.file_name,
+        notes: data.notes,
+      }
+    } catch {
+      return null
+    }
+  },
+
+  async loginWithGoogle(): Promise<void> {
+    const origin = (typeof window !== 'undefined' && window.location?.origin)
+      ? window.location.origin
+      : 'https://acmgo.vercel.app'
+    const { error } = await configured().auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'select_account',
+        },
+      },
+    })
+    if (error) throw asApiError(error)
   },
 
   async uploadPluginRelease(data): Promise<{ success: boolean; release: PluginRelease }> {

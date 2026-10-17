@@ -39,7 +39,7 @@ export default function Register() {
     try {
       await signUp(v.name, v.email, v.password)
       sessionStorage.removeItem(PENDING_OFFER_KEY)
-      navigate(requestedOffer ? `/app?offer=${requestedOffer}` : '/app', { replace: true })
+      navigate(requestedOffer ? `/app/plans?offer=${requestedOffer}` : '/app/plans', { replace: true })
     } catch (e) {
       const message = e as Error & { code?: string }
       if (message.code === 'email_confirmation_required') setNotice(message.message)

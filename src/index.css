@@ -80,6 +80,14 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .btn.danger:hover { background: #fee2e2; border-color: #f87171; }
 .btn.sm { padding: 6px 12px; font-size: 12px; gap: 5px; }
 
+.auth-separator { display: flex; align-items: center; text-align: center; margin: 16px 0; color: var(--muted); font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+.auth-separator::before, .auth-separator::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+.auth-separator span { padding: 0 12px; }
+
+.google-btn { background: #ffffff; color: #1e293b; border: 1px solid #cbd5e1; font-weight: 600; margin-top: 0; margin-bottom: 14px; transition: all 0.15s ease; }
+.google-btn:hover { background: #f8fafc; border-color: #94a3b8; color: #0f172a; box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+.google-icon { flex-shrink: 0; }
+
 /* Customer portal */
 .topbar { position: sticky; top: 0; z-index: 10; background: #ffffff; border-bottom: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
 .topbar-inner { max-width: 1360px; min-height: 64px; margin: 0 auto; padding: 10px 24px; display: flex; align-items: center; gap: 24px; }
@@ -98,6 +106,8 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .menu-item:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
 .menu-item.danger { color: #dc2626; }
 .menu-item.danger:hover { background: #fef2f2; color: #b91c1c; }
+.menu-item.highlight { color: #059669; font-weight: 600; background: #ecfdf5; }
+.menu-item.highlight:hover { background: #d1fae5; color: #047857; }
 .menu-divider { height: 1px; margin: 4px 0; background: var(--border); }
 
 .container { max-width: 1360px; margin: 0 auto; padding: 30px 24px 76px; display: flex; flex-direction: column; gap: 20px; }
