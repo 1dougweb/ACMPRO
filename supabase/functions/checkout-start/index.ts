@@ -115,6 +115,7 @@ Deno.serve(async (req) => {
             },
             back_url: portalReturnUrl,
             notification_url: webhookUrl(),
+            status: 'pending',
           }),
         })
         const checkoutUrl = checkout.init_point ?? checkout.sandbox_init_point
