@@ -29,7 +29,8 @@ export default async function handler(req, res) {
   if (!body) return send(res, 400, { error: 'bad_request', message: 'JSON inválido.' })
 
   const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim()
-  const anonKey = process.env.VITE_SUPABASE_ANON_KEY?.trim()
+  const anonKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
+    || process.env.VITE_SUPABASE_ANON_KEY?.trim()
   if (!supabaseUrl || !anonKey) {
     return send(res, 503, {
       error: 'license_server_not_configured',

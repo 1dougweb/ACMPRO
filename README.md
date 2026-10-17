@@ -11,7 +11,7 @@ Cadastre estas variáveis públicas nos ambientes Vercel Preview e Production:
 ```dotenv
 VITE_API=supabase
 VITE_SUPABASE_URL=<URL HTTPS do projeto Supabase usado pelo plugin>
-VITE_SUPABASE_ANON_KEY=<chave anon ou publishable pública desse projeto>
+VITE_SUPABASE_PUBLISHABLE_KEY=<chave pública publishable desse projeto>
 ```
 
 Use apenas a chave `anon` ou `publishable` do Supabase no navegador. O build rejeita chave `service_role`/`sb_secret_`, projeto diferente do plugin e modo `mock` em produção. Nunca cadastre token do Mercado Pago ou chave privada em uma variável `VITE_*`.

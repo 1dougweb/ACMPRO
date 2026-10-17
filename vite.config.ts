@@ -21,7 +21,11 @@ export default defineConfig(({ mode }) => {
   const selectedApi = mode === 'production' ? 'supabase' : env.VITE_API ?? 'mock'
   // Prefer Vercel's injected build environment, with dotenv as the local fallback.
   const supabaseUrl = process.env.VITE_SUPABASE_URL?.trim() || env.VITE_SUPABASE_URL?.trim() || ''
-  const publicKey = process.env.VITE_SUPABASE_ANON_KEY?.trim() || env.VITE_SUPABASE_ANON_KEY?.trim() || ''
+  const publicKey = process.env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
+    || env.VITE_SUPABASE_PUBLISHABLE_KEY?.trim()
+    || process.env.VITE_SUPABASE_ANON_KEY?.trim()
+    || env.VITE_SUPABASE_ANON_KEY?.trim()
+    || ''
 
   if (!['mock', 'supabase'].includes(selectedApi)) {
     throw new Error('Build interrompido: VITE_API deve ser "supabase".')
@@ -43,12 +47,12 @@ export default defineConfig(({ mode }) => {
 
     const claims = keyClaims(publicKey)
     if (!publicKey) {
-      issues.push('VITE_SUPABASE_ANON_KEY ausente')
+      issues.push('VITE_SUPABASE_PUBLISHABLE_KEY (ou VITE_SUPABASE_ANON_KEY) ausente')
     } else if (publicKey.startsWith('sb_secret_') || claims?.role === 'service_role') {
-      issues.push('VITE_SUPABASE_ANON_KEY contém uma chave privada; use a chave pública anon/publishable')
+      issues.push('a chave Supabase contém uma chave privada; use a chave pública publishable/anon')
     } else if (!publicKey.startsWith('sb_publishable_')
       && !(claims?.role === 'anon' && claims.ref === pluginProjectRef)) {
-      issues.push('VITE_SUPABASE_ANON_KEY não é uma chave pública válida do projeto do plugin')
+      issues.push('a chave Supabase não é uma chave pública válida do projeto do plugin')
     }
 
     if (selectedApi !== 'supabase') issues.push('VITE_API deve ser supabase')
