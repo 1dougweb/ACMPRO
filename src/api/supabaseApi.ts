@@ -4,7 +4,7 @@ import { ApiError, type AdminOverview, type Api, type Device, type License, type
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
   import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
-  ?? import.meta.env.VITE_SUPABASE_ANON_KEY
+  || import.meta.env.VITE_SUPABASE_ANON_KEY
 ) as string | undefined
 // This ref is the one embedded by the SketchUp plugin candidate. Keeping the
 // portal on the same project is what makes a portal account usable in SketchUp.
