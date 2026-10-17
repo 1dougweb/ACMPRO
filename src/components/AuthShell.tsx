@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 
 export function Logo({ to = '/' }: { to?: string }) {
   return (
-    <Link className="logo" aria-label="GOACM" to={to}>
-      <img src="/goacm-logo.svg" alt="GOACM" />
+    <Link className="logo" aria-label="ACMGO" to={to}>
+      <img src="/goacm-logo.svg" alt="ACMGO" />
     </Link>
   )
 }
