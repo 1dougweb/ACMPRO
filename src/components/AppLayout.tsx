@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate, Navigate } from 'react
 import { FolderKanban, GraduationCap, Users, CreditCard, User, ShieldCheck, LogOut, Download, Loader2 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { api } from '../api'
-import type { AdminOverview, License, LatestPluginRelease } from '../api/types'
+import { isLicenseActive, type AdminOverview, type License, type LatestPluginRelease } from '../api/types'
 import { Logo } from './AuthShell'
 import ProfileModal from './ProfileModal'
 
@@ -44,13 +44,7 @@ export default function AppLayout() {
     return () => { current = false }
   }, [])
 
-  const hasActivePlan = Boolean(
-    license && (
-      license.lifetime ||
-      license.status === 'active' ||
-      (license.plan !== 'free' && license.status !== 'expired' && license.status !== 'suspended')
-    )
-  )
+  const hasActivePlan = isLicenseActive(license)
 
   useEffect(() => {
     if (licenseChecked && !hasActivePlan) {
@@ -123,7 +117,7 @@ export default function AppLayout() {
         </div>
       </div>
     </header>
-    <main className="container"><Outlet context={{ adminOverview, adminChecked, adminError }} /></main>
+    <main className="container"><Outlet context={{ adminOverview, adminChecked, adminError, hasActivePlan, license }} /></main>
     {profileOpen && <ProfileModal onClose={closeProfile} />}
   </>
 }

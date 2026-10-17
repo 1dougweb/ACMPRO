@@ -11,7 +11,7 @@ import {
   AlertTriangle,
   UserCheck,
 } from 'lucide-react'
-import { api, type Device, type License } from '../api'
+import { api, isLicenseActive, type Device, type License } from '../api'
 import { useAuth } from '../auth/AuthContext'
 
 export default function ProfileModal({ onClose }: { onClose: () => void }) {
@@ -144,13 +144,7 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
           </div>
         </form>
         {(() => {
-          const hasActivePlan = Boolean(
-            license && (
-              license.lifetime ||
-              license.status === 'active' ||
-              (license.plan !== 'free' && license.status !== 'expired' && license.status !== 'suspended')
-            )
-          )
+          const hasActivePlan = isLicenseActive(license)
           if (!hasActivePlan) {
             return (
               <section className="profile-devices">

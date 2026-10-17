@@ -11,7 +11,7 @@ import {
   CheckCircle2,
   Users,
 } from 'lucide-react'
-import { api, PLAN_LABELS, type License, type PublicOffers } from '../api'
+import { api, isLicenseActive, PLAN_LABELS, type License, type PublicOffers } from '../api'
 import { formatBRL } from '../lib/formatMoney'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -60,7 +60,7 @@ export default function Plans() {
   if (loading) return <div className="splash"><div className="spinner" /></div>
   if (!license) return <section className="card"><h1 className="page-title">Gerenciar assinatura</h1><div className="alert" role="alert"><AlertTriangle size={16} /> {error || 'Não foi possível carregar sua licença.'}</div></section>
 
-  const active = license.hasSubscription ?? license.status === 'active'
+  const active = isLicenseActive(license)
   const status = license.lifetime ? 'Vitalícia' : license.status === 'active' ? 'Ativa' : license.status === 'pending' ? 'Pagamento pendente' : license.status === 'expired' ? 'Expirada' : 'Sem assinatura ativa'
 
   return <div className="plans-page">

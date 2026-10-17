@@ -111,6 +111,19 @@ export interface License {
   token: string
 }
 
+export function isLicenseActive(license: License | null | undefined): boolean {
+  if (!license) return false
+  if (license.lifetime) return true
+  if (license.status === 'active') return true
+  return Boolean(
+    license.hasSubscription &&
+    license.status !== 'pending' &&
+    license.status !== 'none' &&
+    license.status !== 'expired' &&
+    license.status !== 'suspended'
+  )
+}
+
 export interface Member {
   id: string
   email: string

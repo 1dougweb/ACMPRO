@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Loader2 } from 'lucide-react'
 import { api } from '../api'
+import { isLicenseActive } from '../api/types'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -57,7 +58,7 @@ export default function AuthCallback() {
           const license = await api.getLicense()
           if (license && (license.role || license.status !== 'none' || license.plan)) {
             hasAccount = true
-            hasActivePlan = Boolean(license.lifetime || license.status === 'active' || (license.plan !== 'free' && license.status !== 'expired' && license.status !== 'suspended'))
+            hasActivePlan = isLicenseActive(license)
           }
         } catch (err: unknown) {
           const msg = (err as Error).message || ''

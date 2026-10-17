@@ -8,7 +8,7 @@ import { useAuth } from '../auth/AuthContext'
 import { usePageMeta } from '../lib/usePageMeta'
 import AuthShell from '../components/AuthShell'
 import { api } from '../api'
-import { isOfferKey } from '../api/types'
+import { isLicenseActive, isOfferKey } from '../api/types'
 
 const PENDING_OFFER_KEY = 'acm360_pending_offer_v1'
 
@@ -41,9 +41,7 @@ export default function Login() {
         navigate(`/app/plans?offer=${pendingOffer}`, { replace: true })
       } else {
         const lic = await api.getLicense().catch(() => null)
-        const hasActivePlan = Boolean(
-          lic && (lic.lifetime || lic.status === 'active' || (lic.plan !== 'free' && lic.status !== 'expired' && lic.status !== 'suspended'))
-        )
+        const hasActivePlan = isLicenseActive(lic)
         if (!hasActivePlan) {
           navigate('/app/plans', { replace: true })
         } else {
