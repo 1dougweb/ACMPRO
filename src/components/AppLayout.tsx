@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { FolderKanban, GraduationCap, Users, CreditCard, User, ShieldCheck, LogOut } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { api } from '../api'
 import type { AdminOverview } from '../api/types'
@@ -39,23 +40,23 @@ export default function AppLayout() {
       <div className="topbar-inner">
         <Logo to="/app" />
         <nav aria-label="Principal">
-          <NavLink to="/app" end>Projetos</NavLink>
-          <NavLink to="/app/training">Treinamentos</NavLink>
-          <NavLink to="/app/team">Equipe</NavLink>
-          <NavLink to="/app/plans">Assinatura</NavLink>
+          <NavLink to="/app" end><FolderKanban size={15} /> Projetos</NavLink>
+          <NavLink to="/app/training"><GraduationCap size={15} /> Treinamentos</NavLink>
+          <NavLink to="/app/team"><Users size={15} /> Equipe</NavLink>
+          <NavLink to="/app/plans"><CreditCard size={15} /> Assinatura</NavLink>
         </nav>
         <div className="user-menu" ref={ref}>
           <button id="user-menu-btn" className="avatar" aria-label={`Menu da conta de ${user?.name ?? ''}`} aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(!open)}>{initials}</button>
           {open && <div className="menu" role="menu">
             <div className="menu-head"><strong>{user?.name}</strong><span>{user?.email}</span></div>
-            <Link className="menu-item" role="menuitem" to="/app/training" onClick={closeMenu}>Treinamentos</Link>
-            <Link className="menu-item" role="menuitem" to="/app/team" onClick={closeMenu}>Equipe e dispositivos</Link>
+            <Link className="menu-item" role="menuitem" to="/app/training" onClick={closeMenu}><GraduationCap size={15} /> Treinamentos</Link>
+            <Link className="menu-item" role="menuitem" to="/app/team" onClick={closeMenu}><Users size={15} /> Equipe e dispositivos</Link>
             <div className="menu-divider" />
-            <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); setProfileOpen(true) }}>Meu Perfil</button>
-            <Link className="menu-item" role="menuitem" to="/app/plans" onClick={closeMenu}>Gerenciar assinatura</Link>
-            {adminOverview && <><div className="menu-divider" /><Link className="menu-item" role="menuitem" to="/app/admin" onClick={closeMenu}>Administração</Link></>}
+            <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); setProfileOpen(true) }}><User size={15} /> Meu Perfil</button>
+            <Link className="menu-item" role="menuitem" to="/app/plans" onClick={closeMenu}><CreditCard size={15} /> Gerenciar assinatura</Link>
+            {adminOverview && <><div className="menu-divider" /><Link className="menu-item" role="menuitem" to="/app/admin" onClick={closeMenu}><ShieldCheck size={15} /> Administração</Link></>}
             <div className="menu-divider" />
-            <button id="logout-btn" role="menuitem" className="menu-item danger" onClick={async () => { closeMenu(); await logout(); navigate('/login') }}>Sair</button>
+            <button id="logout-btn" role="menuitem" className="menu-item danger" onClick={async () => { closeMenu(); await logout(); navigate('/login') }}><LogOut size={15} /> Sair</button>
           </div>}
         </div>
       </div>

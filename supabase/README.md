@@ -4,7 +4,7 @@ Este diretório contém as migrações e Edge Functions do portal, checkout, web
 
 ## Migrações
 
-As migrações criam contas e membros (três acessos nos planos comuns), assinaturas, pedidos, dispositivos, registros de aceite dos termos e política de privacidade, ledger de pagamentos e log de eventos. A licença vitalícia da conta administradora não tem limite de membros. Execute-as com o Supabase CLI depois de vincular o projeto correto.
+As migrações criam contas e membros (três acessos nos planos comuns), assinaturas, pedidos, dispositivos, registros de aceite dos termos e política de privacidade, ledger de pagamentos, log de eventos e workspace de projetos. A licença vitalícia da conta administradora não tem limite de membros. Execute-as com o Supabase CLI depois de vincular o projeto correto.
 
 As migrações 001–005 preservam o histórico do esquema legado; a migração 006 deixa as tabelas finais com o prefixo `license_`. A migração 007 vincula a confirmação de um convite à vaga exata enviada e libera convites duplicados para o mesmo e-mail. A migração 008 reconcilia pagamentos anuais aprovados após expiração: mantém o registro financeiro, mas só libera a licença se o pagamento ocorreu dentro do prazo do pedido. A migração 009 serializa os eventos de pagamento, registra estados pendentes/recusados/estornados antes de liberar acesso e impede que eventos atrasados reativem cobranças estornadas. As rotinas SQL e as Edge Functions passam a consultar os nomes finais depois da migração 006.
 
@@ -21,6 +21,7 @@ As migrações 001–005 preservam o histórico do esquema legado; a migração 
 | `202610170003_order_payment_webhook_events.sql` | Serializa o processamento por pagamento, grava estados não aprovados e mantém aprovação/estorno idempotentes para planos mensal e anual. |
 | `202610170004_plugin_license_protocol.sql` | Adiciona segredo de dispositivo, idioma da conta e ativação com limite de um computador por pessoa para o protocolo SketchUp. |
 | `202610170006_lifetime_admin_license.sql` | Concede licença vitalícia à conta titular administradora e remove o limite de assentos somente dessa conta. |
+| `202610170007_project_workspace.sql` | Cria projetos, publicações, peças e o bucket privado dos arquivos enviados pelo plugin SketchUp. |
 
 As funções e migrações estão versionadas junto ao portal, mas a configuração local existente aponta para outro projeto Supabase e não pode ser usada com o plugin. A URL pública do Vercel e o projeto remoto precisam ser cadastrados nos respectivos ambientes seguros antes do deploy. Confira o histórico remoto, faça backup e aplique migrações pendentes em ordem; a migração `202610160006_rename_commerce_tables.sql` renomeia tabelas no lugar e interrompe se os nomes antigos e novos coexistirem. A migração `202610170004_plugin_license_protocol.sql` depende das tabelas finais `license_*`.
 
@@ -50,7 +51,7 @@ O template seguro para desenvolvimento está em `supabase/functions/env.example`
 
 O pacote candidato 1.1.34 foi reconstruído a partir dos módulos `.rbe` recuperados. O cliente usa as funções `sketchup-auth`, `sketchup-refresh`, `register-device`, `check-subscription`, `sketchup-validate`, `sketchup-revoke` e `sketchup-locale`, enviando e-mail/senha no login, identificador da máquina e segredo persistido por dispositivo. A chave pública Ed25519 embutida no candidato corresponde à chave privada local usada pelo helper de licenças. O pacote é fonte Ruby legível e ainda não foi instalado nem assinado; mantenha a versão instalada intacta até publicar e validar o backend.
 
-O cliente também chama `sketchup-projects`, `sketchup-publish`, `sketchup-project-create` e `sketchup-parts-batch`. Esses handlers não estão no diretório local de Edge Functions. A reconstrução desta etapa cobre somente login e licença; confirme a disponibilidade desses recursos no backend remoto antes de depender de sincronização/publicação de projetos. As ferramentas locais de modelagem foram preservadas.
+O plugin GOACM chama `sketchup-projects`, `sketchup-project-create`, `sketchup-publish` e `sketchup-parts-batch`. As funções locais implementam criação e listagem de projetos, publicação versionada com upload privado e envio de listas de peças. O portal lista e filtra esses projetos, permite criar projetos, abrir detalhes e alterar o status. A migração 007 precisa ser aplicada e as seis funções de projetos precisam ser publicadas no Supabase de produção para habilitar esses fluxos fora do ambiente local.
 
 ## Funções
 
@@ -58,6 +59,7 @@ O cliente também chama `sketchup-projects`, `sketchup-publish`, `sketchup-proje
 - `admin-overview`: dados do painel administrativo, permitido somente para usuário autenticado com e-mail confirmado presente em `SITE_ADMIN_EMAILS`.
 - `account-summary`, `devices-list`, `devices-revoke`: dados do portal autenticado.
 - `members-list`, `members-invite`, `members-remove`: equipe e convites Supabase Auth.
+- `sketchup-projects`, `sketchup-project-create`, `project-details`, `project-status`, `sketchup-publish`, `sketchup-parts-batch`: workspace compartilhado de projetos, publicações e peças entre portal e plugin.
 - `checkout-start`: cria assinatura mensal ou preferência anual com Pix.
 - `billing-cancel`: cancela a renovação automática mensal.
 - `mercadopago-webhook`: valida HMAC, busca o recurso na API do Mercado Pago, serializa cada pagamento no ledger e aplica aprovação/recusa/estorno sem deixar eventos atrasados reativarem licenças estornadas.
@@ -94,5 +96,5 @@ Use credenciais de teste e URL de webhook de sandbox antes da produção. O pre�
 
 ## Pendências de publicação
 
-- O checkout e a ativação ainda não podem operar até que o histórico/esquema remoto seja conferido, as migrações sejam aplicadas e as Edge Functions sejam publicadas no projeto Supabase de produção.
-- O login ponta a ponta depende de publicar as funções, configurar o secret Ed25519 e validar uma conta de sandbox antes de aceitar pagamentos reais. As quatro rotas de projetos listadas acima permanecem fora da reconstrução de login/licença.
+- Os novos fluxos de projetos e sincronização com o SketchUp dependem de aplicar a migração 007 e publicar as seis funções listadas acima no Supabase de produção.
+- Os treinamentos exibem o catálogo disponível, mas vídeos e arquivos ainda precisam ser vinculados antes de os alunos poderem assistir às aulas e registrar progresso.

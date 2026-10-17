@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Laptop, AlertTriangle, Trash2 } from 'lucide-react'
 import { api, type Device, type License } from '../api'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -36,7 +37,7 @@ export default function Devices() {
       <section className="card">
         <h2>Trocar de computador</h2>
         <p className="muted">Cada pessoa pode autorizar 1 computador. Para trocar, revogue o computador anterior e entre no plugin GOACM pela nova máquina com o mesmo e-mail e senha usados no portal.</p>
-        {error && <div className="alert" role="alert">{error}</div>}
+        {error && <div className="alert" role="alert"><AlertTriangle size={15} /> {error}</div>}
       </section>
 
       <section className="card">
@@ -45,15 +46,32 @@ export default function Devices() {
           <p className="empty">Nenhum dispositivo autorizado ainda.</p>
         ) : (
           <table className="table">
-            <thead><tr>{license?.role === 'owner' && <th>Pessoa</th>}<th>Computador</th><th>ID da máquina</th><th>Último acesso</th><th /></tr></thead>
+            <thead>
+              <tr>
+                {license?.role === 'owner' && <th>Pessoa</th>}
+                <th>Computador</th>
+                <th>ID da máquina</th>
+                <th>Último acesso</th>
+                <th />
+              </tr>
+            </thead>
             <tbody>
               {devices.map((d) => (
                 <tr key={d.id}>
                   {license?.role === 'owner' && <td>{d.memberName || d.memberEmail || 'Titular'}</td>}
-                  <td>{d.name}</td>
+                  <td>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                      <Laptop size={14} style={{ color: 'var(--brand)' }} />
+                      {d.name}
+                    </span>
+                  </td>
                   <td><code>{d.machineId.slice(0, 8)}…</code></td>
                   <td>{new Date(d.lastSeen).toLocaleString('pt-BR')}</td>
-                  <td className="right"><button className="btn danger sm" onClick={() => revoke(d.id)}>Revogar</button></td>
+                  <td className="right">
+                    <button className="btn danger sm" onClick={() => revoke(d.id)}>
+                      <Trash2 size={12} /> Revogar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

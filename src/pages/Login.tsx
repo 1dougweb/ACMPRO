@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { LogIn, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { usePageMeta } from '../lib/usePageMeta'
 import AuthShell from '../components/AuthShell'
@@ -55,11 +56,11 @@ export default function Login() {
         {errors.password && <p className="err">{errors.password.message}</p>}
         <p className="muted auth-helper"><Link to="/forgot-password">Esqueci minha senha</Link></p>
 
-        {error && <div className="alert" role="alert">{error}</div>}
-        {notice && <div className="success" role="status">{notice}</div>}
+        {error && <div className="alert" role="alert"><AlertTriangle size={15} /> {error}</div>}
+        {notice && <div className="success" role="status"><CheckCircle2 size={15} /> {notice}</div>}
 
         <button id="login-submit" className="btn primary block" disabled={isSubmitting}>
-          {isSubmitting ? 'Entrando…' : 'Entrar'}
+          <LogIn size={15} /> {isSubmitting ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
       <p className="muted center">

@@ -1,14 +1,20 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import {
+  GraduationCap,
+  BookOpen,
+  Clock,
+  X,
+} from 'lucide-react'
 import { usePageMeta } from '../lib/usePageMeta'
 
-type Lesson = { title: string; minutes?: number; ready?: boolean }
+type Lesson = { title: string; minutes?: number }
 type Course = { title: string; description?: string; lessonTotal?: number; lessons: Lesson[] }
 
 const courses: Course[] = [
   {
     title: 'Tutorial GOACM',
     lessons: [
-      { title: 'Novidades do GOACM', ready: true },
+      { title: 'Novidades do GOACM' },
       { title: 'Estruturas', minutes: 27 },
       { title: 'Planificação', minutes: 11 },
     ],
@@ -25,87 +31,94 @@ const courses: Course[] = [
   },
 ]
 
-// The reference screen shows 35 lessons in the complete library. Only titles
-// visible in the supplied material are listed here; missing lessons stay unavailable.
 const totalLessons = 35
-const PROGRESS_KEY = 'goacm_training_completed_v1'
-
-function initialProgress(): string[] {
-  try {
-    const saved = localStorage.getItem(PROGRESS_KEY)
-    return saved ? JSON.parse(saved) as string[] : ['0-0']
-  } catch {
-    return []
-  }
-}
 
 export default function Training() {
   usePageMeta('Treinamentos', 'Aulas e treinamentos GOACM.')
-  const [completed, setCompleted] = useState<string[]>(initialProgress)
-  const [selected, setSelected] = useState<{ lesson: Lesson; key: string } | null>(null)
-  const percentage = Math.round((completed.length / totalLessons) * 100)
+  const [selected, setSelected] = useState<Lesson | null>(null)
+  const completed = 0
+  const percentage = 0
   const lessonCount = totalLessons
-
-  useEffect(() => { localStorage.setItem(PROGRESS_KEY, JSON.stringify(completed)) }, [completed])
-
-  const markComplete = (key: string) => {
-    setCompleted((current) => current.includes(key) ? current : [...current, key])
-  }
 
   return (
     <div className="training-page">
       <div className="training-heading">
         <div>
           <h1 className="page-title">Treinamentos</h1>
-          <p className="muted">Aprenda SketchUp do zero ao projeto executivo e acompanhe seu progresso em cada aula.</p>
+          <p className="muted">Consulte a trilha de treinamento GOACM e acompanhe as aulas que serão disponibilizadas no portal.</p>
         </div>
-        <span className="training-community-note">Aulas disponíveis conforme o material vinculado ao portal</span>
+        <span className="training-community-note">
+          <GraduationCap size={14} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 4, color: 'var(--brand)' }} />
+          Aulas disponíveis conforme o material vinculado ao portal
+        </span>
       </div>
 
       <section className="training-progress card" aria-label="Progresso dos treinamentos">
-        <div><strong>{completed.length} de {lessonCount} aulas</strong><span>{percentage}%</span></div>
-        <div className="training-progress-track"><span style={{ width: `${percentage}%` }} /></div>
-        <p className="hint">O progresso das aulas disponíveis fica salvo neste navegador.</p>
+        <div>
+          <strong>{completed} de {lessonCount} aulas com material disponível</strong>
+          <span>{percentage}%</span>
+        </div>
+        <div className="training-progress-track">
+          <span style={{ width: `${percentage}%` }} />
+        </div>
+        <p className="hint">Os vídeos e arquivos das aulas ainda não foram vinculados ao portal.</p>
       </section>
 
       {courses.map((course, courseIndex) => {
-        const courseCompleted = course.lessons.filter((_, lessonIndex) => completed.includes(`${courseIndex}-${lessonIndex}`)).length
         const courseTotal = course.lessonTotal ?? course.lessons.length
         return (
           <section className="training-course card" key={course.title}>
-            <header><h2>{course.title}</h2><span>{courseCompleted} de {courseTotal} aulas</span></header>
+            <header>
+              <h2>
+                <BookOpen size={17} style={{ color: 'var(--brand)' }} />
+                {course.title}
+              </h2>
+              <span>0 de {courseTotal} aulas disponíveis</span>
+            </header>
             {course.description && <p className="muted">{course.description}</p>}
             <div className="lesson-list">
               {course.lessons.map((lesson, lessonIndex) => {
-                const key = `${courseIndex}-${lessonIndex}`
-                const done = completed.includes(key)
                 return (
-                  <button className="lesson-row" key={key} onClick={() => setSelected({ lesson, key })}>
-                    <span className={`lesson-state ${done ? 'done' : lesson.ready ? 'current' : ''}`} aria-label={done ? 'Concluída' : lesson.ready ? 'Disponível' : 'Em breve'}>{done ? '✓' : lesson.ready ? '▶' : ''}</span>
+                  <button className="lesson-row" key={`${courseIndex}-${lessonIndex}`} onClick={() => setSelected(lesson)}>
+                    <span className="lesson-state" aria-label="Material ainda não vinculado" />
                     <span className="lesson-number">{lessonIndex + 1}.</span>
                     <span className="lesson-title">{lesson.title}</span>
-                    <span className="lesson-duration">{lesson.minutes ? `${lesson.minutes} min` : lesson.ready ? '' : 'Em breve'}</span>
+                    <span className="lesson-duration">
+                      {lesson.minutes ? (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <Clock size={11} /> {lesson.minutes} min
+                        </span>
+                      ) : (
+                        'Material pendente'
+                      )}
+                    </span>
                   </button>
                 )
               })}
-              {courseTotal > course.lessons.length && <div className="lesson-extra">Mais {courseTotal - course.lessons.length} aulas deste curso ainda não foram cadastradas no portal.</div>}
+              {courseTotal > course.lessons.length && (
+                <div className="lesson-extra">
+                  Mais {courseTotal - course.lessons.length} aulas deste curso ainda não foram cadastradas no portal.
+                </div>
+              )}
             </div>
           </section>
         )
       })}
 
-      <p className="training-content-note">A biblioteca indica {lessonCount} aulas. As 23 aulas restantes ainda não têm título e material cadastrados neste portal.</p>
+      <p className="training-content-note">As aulas ainda não têm vídeos, arquivos ou links de material cadastrados. Abra uma aula para ver esse status.</p>
 
-      {selected && <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null) }}>
-        <section className="profile-modal lesson-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-modal-title">
-          <button className="modal-close" aria-label="Fechar" onClick={() => setSelected(null)}>×</button>
-          <p className="label">Treinamento GOACM</p>
-          <h2 id="lesson-modal-title">{selected.lesson.title}</h2>
-          {selected.lesson.ready
-            ? <><p className="muted">Esta aula já está disponível no material introdutório do GOACM.</p><button className="btn primary" onClick={() => { markComplete(selected.key); setSelected(null) }}>Marcar como concluída</button></>
-            : <p className="muted">O material desta aula ainda não foi vinculado ao portal. Sua lista e seu progresso ficam salvos neste navegador.</p>}
-        </section>
-      </div>}
+      {selected && (
+        <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelected(null) }}>
+          <section className="profile-modal lesson-modal" role="dialog" aria-modal="true" aria-labelledby="lesson-modal-title">
+            <button className="modal-close" aria-label="Fechar" onClick={() => setSelected(null)}>
+              <X size={16} />
+            </button>
+            <p className="label">Treinamento GOACM</p>
+            <h2 id="lesson-modal-title">{selected.title}</h2>
+            <p className="muted">Esta aula está listada, mas ainda não tem vídeo, arquivo ou link de acesso cadastrado. O portal não registra progresso sem um material disponível.</p>
+          </section>
+        </div>
+      )}
     </div>
   )
 }

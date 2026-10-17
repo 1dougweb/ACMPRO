@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { UserPlus, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { usePageMeta } from '../lib/usePageMeta'
 import AuthShell from '../components/AuthShell'
@@ -67,11 +68,11 @@ export default function Register() {
         </label>
         {errors.legalAcceptance && <p className="err">{errors.legalAcceptance.message}</p>}
 
-        {error && <div className="alert" role="alert">{error}</div>}
-        {notice && <div className="success" role="status">{notice}</div>}
+        {error && <div className="alert" role="alert"><AlertTriangle size={15} /> {error}</div>}
+        {notice && <div className="success" role="status"><CheckCircle2 size={15} /> {notice}</div>}
 
         <button id="reg-submit" className="btn primary block" disabled={isSubmitting}>
-          {isSubmitting ? 'Criando…' : 'Criar conta'}
+          <UserPlus size={15} /> {isSubmitting ? 'Criando…' : 'Criar conta'}
         </button>
       </form>
       <p className="muted center">

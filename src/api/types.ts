@@ -1,6 +1,45 @@
 export type Plan = 'free' | 'pro' | 'team'
 export type LicenseStatus = 'active' | 'expired' | 'suspended' | 'past_due' | 'pending' | 'none'
 export type OfferKey = 'pro_monthly' | 'pro_annual'
+export type ProjectStatus = 'rascunho' | 'em_producao' | 'concluido'
+
+export interface Project {
+  id: string
+  name: string
+  customerName: string
+  status: ProjectStatus
+  createdAt: string
+  updatedAt: string
+  lastPublicationAt: string | null
+}
+
+export interface ProjectPublication {
+  id: string
+  revision: number
+  message: string
+  modelName: string
+  authorName: string
+  status: 'pending' | 'published'
+  metrics: Record<string, unknown>
+  datasets: unknown[]
+  createdAt: string
+  publishedAt: string | null
+}
+
+export interface ProjectPart {
+  id: string
+  name: string
+  widthMm: number
+  heightMm: number
+  quantity: number
+  createdAt: string
+}
+
+export interface ProjectDetails {
+  project: Project
+  publications: ProjectPublication[]
+  parts: ProjectPart[]
+}
 
 export interface PublicOffers {
   monthlyAmountCents: number
@@ -79,6 +118,10 @@ export interface Member {
 export type PreferredLocale = 'pt-BR' | 'en' | 'es'
 
 export interface Api {
+  listProjects(): Promise<Project[]>
+  createProject(name: string, customerName?: string): Promise<Project>
+  updateProjectStatus(projectId: string, status: ProjectStatus): Promise<Project>
+  getProjectDetails(projectId: string): Promise<ProjectDetails>
   getPublicOffers(): Promise<PublicOffers>
   getAdminOverview(): Promise<AdminOverview>
   login(email: string, password: string): Promise<User>

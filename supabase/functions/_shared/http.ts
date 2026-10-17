@@ -4,13 +4,15 @@ export function corsHeaders(req: Request) {
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean)
+  const isLocalDev = Boolean(origin && /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))
+  const isAllowed = !origin || isLocalDev || allowed.includes(origin)
   const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-device-id, x-device-secret, x-client, accept-language',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Vary': 'Origin',
   }
-  if (origin && allowed.includes(origin)) headers['Access-Control-Allow-Origin'] = origin
-  return { headers, allowed: !origin || allowed.includes(origin) }
+  if (origin && isAllowed) headers['Access-Control-Allow-Origin'] = origin
+  return { headers, allowed: isAllowed }
 }
 
 export function respond(req: Request, body: unknown, status = 200) {

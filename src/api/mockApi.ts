@@ -8,6 +8,9 @@ import {
   type Member,
   type OfferKey,
   type Plan,
+  type Project,
+  type ProjectDetails,
+  type ProjectStatus,
   type PublicOffers,
   type User,
 } from './types'
@@ -25,14 +28,36 @@ interface Account extends User {
   expiresAt: string
   devices: Device[]
   members?: Member[]
+  projects?: Project[]
 }
 
 const delay = (ms = 250) => new Promise((r) => setTimeout(r, ms))
 const uid = () => crypto.randomUUID()
 
+const isBrowser = typeof window !== 'undefined'
+
 function load(): Account[] {
   const raw = localStorage.getItem(KEY)
-  if (raw) return JSON.parse(raw) as Account[]
+  if (raw) {
+    const list = JSON.parse(raw) as Account[]
+    if (isBrowser) {
+      const demo = list.find((a) => a.email.toLowerCase() === 'demo@example.com')
+      if (demo && (!demo.devices || demo.devices.length === 0)) {
+        demo.devices = [
+          {
+            id: 'dev-demo-1',
+            name: 'Workstation Dell Precision (SketchUp 3D)',
+            machineId: '8f7a2b1c4e9d0a1b2c3d4e5f6a7b8c9d',
+            lastSeen: new Date().toISOString(),
+            memberName: demo.name,
+            memberEmail: demo.email,
+          },
+        ]
+        save(list)
+      }
+    }
+    return list
+  }
   const seed: Account[] = [
     {
       id: uid(),
@@ -41,7 +66,18 @@ function load(): Account[] {
       password: 'demo1234',
       plan: 'pro',
       expiresAt: new Date(Date.now() + LICENSE_DAYS * 864e5).toISOString(),
-      devices: [],
+      devices: isBrowser
+        ? [
+            {
+              id: 'dev-demo-1',
+              name: 'Workstation Dell Precision (SketchUp 3D)',
+              machineId: '8f7a2b1c4e9d0a1b2c3d4e5f6a7b8c9d',
+              lastSeen: new Date().toISOString(),
+              memberName: 'Usuário Demo',
+              memberEmail: 'demo@example.com',
+            },
+          ]
+        : [],
       members: [{ id: 'member-demo-owner', email: 'demo@example.com', name: 'Usuário Demo', role: 'owner', status: 'active', createdAt: new Date().toISOString() }],
     },
   ]
@@ -80,6 +116,46 @@ export async function signLicenseToken(a: Pick<Account, 'id' | 'plan' | 'expires
 }
 
 export const mockApi: Api = {
+  async listProjects() {
+    await delay(100)
+    return required().projects ?? []
+  },
+
+  async createProject(name, customerName = '') {
+    await delay()
+    const account = required()
+    const db = load()
+    const target = db.find((item) => item.id === account.id)!
+    const now = new Date().toISOString()
+    const project: Project = {
+      id: uid(), name: name.trim(), customerName: customerName.trim(), status: 'rascunho',
+      createdAt: now, updatedAt: now, lastPublicationAt: null,
+    }
+    target.projects = [...(target.projects ?? []), project]
+    save(db)
+    return project
+  },
+
+  async updateProjectStatus(projectId: string, status: ProjectStatus) {
+    await delay()
+    const account = required()
+    const db = load()
+    const target = db.find((item) => item.id === account.id)!
+    const project = target.projects?.find((item) => item.id === projectId)
+    if (!project) throw new ApiError('project_not_found', 'Projeto não encontrado.')
+    project.status = status
+    project.updatedAt = new Date().toISOString()
+    save(db)
+    return project
+  },
+
+  async getProjectDetails(projectId: string): Promise<ProjectDetails> {
+    await delay(100)
+    const project = (required().projects ?? []).find((item) => item.id === projectId)
+    if (!project) throw new ApiError('project_not_found', 'Projeto não encontrado.')
+    return { project, publications: [], parts: [] }
+  },
+
   async getPublicOffers(): Promise<PublicOffers> {
     await delay(100)
     return { monthlyAmountCents: 9700, annualAmountCents: 97000, monthlyTrialDays: 7 }
@@ -239,7 +315,14 @@ export const mockApi: Api = {
         'Cada pessoa pode autorizar um computador. Revogue o anterior para trocar de máquina.',
       )
     }
-    const device: Device = { id: uid(), name, machineId, lastSeen: new Date().toISOString() }
+    const device: Device = {
+      id: uid(),
+      name,
+      machineId,
+      lastSeen: new Date().toISOString(),
+      memberName: acc.name,
+      memberEmail: acc.email,
+    }
     target.devices.push(device)
     save(db)
     return device

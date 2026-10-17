@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PublicOffers, type User } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
@@ -91,6 +91,28 @@ function asApiError(error: { message: string; code?: string | null }) {
   return new ApiError(error.code ?? 'backend_error', error.message)
 }
 
+type ProjectRow = {
+  id: string
+  name: string
+  customer_name?: string | null
+  status: ProjectStatus
+  created_at: string
+  updated_at: string
+  last_publication_at?: string | null
+}
+
+function asProject(row: ProjectRow): Project {
+  return {
+    id: row.id,
+    name: row.name,
+    customerName: row.customer_name ?? '',
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastPublicationAt: row.last_publication_at ?? null,
+  }
+}
+
 async function invoke<T>(name: string, body?: Record<string, unknown>): Promise<T> {
   const { data, error } = await configured().functions.invoke<T>(name, { body })
   if (error) {
@@ -106,6 +128,52 @@ async function invoke<T>(name: string, body?: Record<string, unknown>): Promise<
 }
 
 export const supabaseApi: Api = {
+  async listProjects(): Promise<Project[]> {
+    const result = await invoke<{ projects: ProjectRow[] }>('sketchup-projects', { action: 'list' })
+    return result.projects.map(asProject)
+  },
+
+  async createProject(name, customerName = ''): Promise<Project> {
+    const result = await invoke<{ project: ProjectRow }>('sketchup-project-create', { name, customerName })
+    return asProject(result.project)
+  },
+
+  async updateProjectStatus(projectId, status): Promise<Project> {
+    const result = await invoke<{ project: ProjectRow }>('project-status', { projectId, status })
+    return asProject(result.project)
+  },
+
+  async getProjectDetails(projectId): Promise<ProjectDetails> {
+    const result = await invoke<{
+      project: ProjectRow
+      publications: Array<{ id: string; revision: number; message: string; model_name: string; author_name: string; status: 'pending' | 'published'; metrics: Record<string, unknown>; datasets: unknown[]; created_at: string; published_at: string | null }>
+      parts: Array<{ id: string; name: string; width_mm: number | string; height_mm: number | string; quantity: number; created_at: string }>
+    }>('project-details', { projectId })
+    return {
+      project: asProject(result.project),
+      publications: result.publications.map((item) => ({
+        id: item.id,
+        revision: item.revision,
+        message: item.message,
+        modelName: item.model_name,
+        authorName: item.author_name,
+        status: item.status,
+        metrics: item.metrics ?? {},
+        datasets: item.datasets ?? [],
+        createdAt: item.created_at,
+        publishedAt: item.published_at,
+      })),
+      parts: result.parts.map((item) => ({
+        id: item.id,
+        name: item.name,
+        widthMm: Number(item.width_mm),
+        heightMm: Number(item.height_mm),
+        quantity: item.quantity,
+        createdAt: item.created_at,
+      })),
+    }
+  },
+
   async getPublicOffers(): Promise<PublicOffers> {
     return await invoke<PublicOffers>('public-offers')
   },
