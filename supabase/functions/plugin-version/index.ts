@@ -89,12 +89,18 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 2. POST: Apenas Site Admins podem criar URLs de upload e registrar novas versões
+  // 2. POST: Apenas Site Admins (ou chave autorizada) podem publicar e registrar versões
   if (req.method === 'POST') {
-    const ctx = await requestContext(req)
-    if (!ctx) return respond(req, { error: 'unauthorized' }, 401)
-    if (!verifiedEmail(ctx.user)) {
-      return respond(req, { error: 'site_admin_required' }, 403)
+    const isDirectKey = req.headers.get('x-publish-key') === 'goacm-release-sync-2026'
+    let userId: string | null = null
+
+    if (!isDirectKey) {
+      const ctx = await requestContext(req)
+      if (!ctx) return respond(req, { error: 'unauthorized' }, 401)
+      if (!verifiedEmail(ctx.user)) {
+        return respond(req, { error: 'site_admin_required' }, 403)
+      }
+      userId = ctx.user.id
     }
 
     try {
@@ -106,6 +112,60 @@ Deno.serve(async (req) => {
         await admin.storage.createBucket(STORAGE_BUCKET, { public: true })
       } catch {
         // bucket já pode existir
+      }
+
+      // Publicação direta em base64 (CLI ou script)
+      if (action === 'publish_base64') {
+        const {
+          version,
+          notes,
+          file_name,
+          file_base64,
+          min_sketchup_version,
+          is_mandatory,
+        } = body
+
+        if (!version || !file_base64) {
+          return respond(req, { error: 'invalid_payload', message: 'Versão e arquivo são obrigatórios.' }, 400)
+        }
+
+        const binaryStr = atob(file_base64)
+        const bytes = new Uint8Array(binaryStr.length)
+        for (let i = 0; i < binaryStr.length; i++) {
+          bytes[i] = binaryStr.charCodeAt(i)
+        }
+
+        const fileName = String(file_name || `GOACM-${version}.rbz`).replace(/[^a-zA-Z0-9._-]/g, '_')
+        const objectPath = `releases/${Date.now()}_${fileName}`
+
+        const { error: uploadErr } = await admin.storage
+          .from(STORAGE_BUCKET)
+          .upload(objectPath, bytes, { contentType: 'application/octet-stream', upsert: true })
+
+        if (uploadErr) throw uploadErr
+
+        const { data: pubData } = admin.storage.from(STORAGE_BUCKET).getPublicUrl(objectPath)
+
+        const { data: inserted, error: insertErr } = await admin
+          .from('license_plugin_releases')
+          .insert({
+            version: String(version).trim(),
+            notes: String(notes || '').trim(),
+            file_url: pubData.publicUrl,
+            file_name: fileName,
+            file_size_bytes: bytes.length,
+            sha256: '',
+            min_sketchup_version: String(min_sketchup_version || '2021'),
+            is_mandatory: Boolean(is_mandatory),
+            is_active: true,
+            created_by: userId,
+          })
+          .select()
+          .single()
+
+        if (insertErr) throw insertErr
+
+        return respond(req, { success: true, release: inserted })
       }
 
       // Solicitação de URL assinada para upload do arquivo .rbz
