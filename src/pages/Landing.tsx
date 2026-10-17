@@ -38,7 +38,7 @@ export default function Landing() {
   return (
     <main className="sales-page">
       <header className="sales-nav">
-        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
+        <Link className="sales-brand" to="/" aria-label="ACMGO início"><img src="/logo-acmgo.svg" alt="ACMGO" /></Link>
         <nav className="sales-nav-links" aria-label="Navegação do site">
           <a href="#recursos">O plugin</a><a href="#incluido">O que está incluído</a><a href="#planos">Planos</a>
         </nav>
@@ -277,7 +277,7 @@ export default function Landing() {
       </section>
 
       <footer className="sales-footer">
-        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
+        <Link className="sales-brand" to="/" aria-label="ACMGO início"><img src="/logo-acmgo.svg" alt="ACMGO" /></Link>
         <p>Plugin, treinamento e suporte para projetos no SketchUp.</p>
         <div>
           <Link to="/login">Entrar</Link>

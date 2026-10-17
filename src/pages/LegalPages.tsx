@@ -6,7 +6,7 @@ function LegalLayout({ title, children }: { title: string; children: ReactNode }
   return (
     <main className="legal-page">
       <header className="legal-nav">
-        <Link className="sales-brand" to="/" aria-label="GOACM início"><img src="/goacm-logo.svg" alt="GOACM" /></Link>
+        <Link className="sales-brand" to="/" aria-label="ACMGO início"><img src="/logo-acmgo.svg" alt="ACMGO" /></Link>
         <Link to="/">Voltar ao site</Link>
       </header>
       <article className="legal-content">

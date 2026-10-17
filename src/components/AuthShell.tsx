@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 export function Logo({ to = '/' }: { to?: string }) {
   return (
     <Link className="logo" aria-label="ACMGO" to={to}>
-      <img src="/goacm-logo.svg" alt="ACMGO" />
+      <img src="/logo-acmgo.svg" alt="ACMGO" />
     </Link>
   )
 }

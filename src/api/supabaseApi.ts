@@ -210,6 +210,7 @@ export const supabaseApi: Api = {
   },
 
   async register(name, email, password) {
+    const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : 'https://acmgo.vercel.app'
     const { data, error } = await configured().auth.signUp({
       email: email.trim(),
       password,
@@ -220,7 +221,7 @@ export const supabaseApi: Api = {
           legal_privacy_version: '2026-10-16',
           legal_accepted_at: new Date().toISOString(),
         },
-        emailRedirectTo: `${window.location.origin}/login`,
+        emailRedirectTo: `${origin}/login`,
       },
     })
     if (error) throw asApiError(error)
@@ -247,8 +248,9 @@ export const supabaseApi: Api = {
   },
 
   async requestPasswordReset(email: string) {
+    const origin = (typeof window !== 'undefined' && window.location?.origin) ? window.location.origin : 'https://acmgo.vercel.app'
     const { error } = await configured().auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${origin}/reset-password`,
     })
     if (error) throw asApiError(error)
   },

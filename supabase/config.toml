@@ -30,3 +30,30 @@ verify_jwt = true
 
 [functions.sketchup-locale]
 verify_jwt = true
+
+[auth]
+site_url = "https://acmgo.vercel.app"
+additional_redirect_urls = [
+  "https://acmgo.vercel.app/**",
+  "https://acmgo.vercel.app/login",
+  "https://acmgo.vercel.app/reset-password",
+  "https://acmgo.vercel.app/app",
+  "http://localhost:5173/**",
+  "http://localhost:5173/login",
+  "http://localhost:5173/reset-password"
+]
+
+[auth.email]
+max_frequency = "1m0s"
+otp_length = 8
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[db.pooler]
+default_pool_size = 15
+max_client_conn = 200
+
+[storage.vector]
+enabled = false

@@ -47,7 +47,7 @@ code { font-family: ui-monospace, 'Cascadia Code', monospace; font-size: 12px; }
 .right { text-align: right; }
 .label { display: block; color: var(--muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .logo { display: inline-flex; align-items: center; flex: 0 0 auto; }
-.logo img { display: block; width: 122px; max-height: 30px; object-fit: contain; }
+.logo img { display: block; width: 140px; max-height: 32px; object-fit: contain; }
 
 /* Login and registration */
 .auth-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: var(--bg); }
@@ -335,7 +335,7 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .sales-page a { color: inherit; }
 .sales-nav { max-width: 1280px; min-height: 72px; margin: 0 auto; padding: 14px 36px; display: flex; align-items: center; gap: 48px; border-bottom: 1px solid var(--border); }
 .sales-brand { display: inline-flex; align-items: center; flex: 0 0 auto; }
-.sales-brand img { width: 134px; max-height: 34px; object-fit: contain; }
+.sales-brand img { width: 154px; max-height: 36px; object-fit: contain; }
 .sales-nav-links { flex: 1; display: flex; align-items: center; gap: 30px; }
 .sales-nav-links a, .sales-login { color: #475569 !important; font-size: 13px; font-weight: 600; transition: color 0.15s ease; }
 .sales-nav-links a:hover, .sales-login:hover { color: var(--brand-dark) !important; text-decoration: none; }
