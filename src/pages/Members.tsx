@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { api, type Device, type License, type Member, type PreferredLocale } from '../api'
 import { usePageMeta } from '../lib/usePageMeta'
 
@@ -15,13 +15,42 @@ export default function Members() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
+  const refreshSequence = useRef(0)
 
   const refresh = useCallback(async () => {
-    const [nextMembers, nextDevices, nextLicense] = await Promise.all([api.listMembers(), api.listDevices(), api.getLicense()])
-    setMembers(nextMembers); setDevices(nextDevices); setLicense(nextLicense)
+    const requestId = ++refreshSequence.current
+    const [membersResult, devicesResult, licenseResult] = await Promise.allSettled([
+      api.listMembers(),
+      api.listDevices(),
+      api.getLicense(),
+    ])
+    if (requestId !== refreshSequence.current) return
+
+    const errors: string[] = []
+    if (membersResult.status === 'fulfilled') setMembers(membersResult.value)
+    else errors.push(`Membros: ${(membersResult.reason as Error)?.message ?? 'não foi possível carregar a equipe.'}`)
+    if (devicesResult.status === 'fulfilled') setDevices(devicesResult.value)
+    else errors.push(`Dispositivos: ${(devicesResult.reason as Error)?.message ?? 'não foi possível carregar os computadores.'}`)
+    if (licenseResult.status === 'fulfilled') setLicense(licenseResult.value)
+    else errors.push(`Licença: ${(licenseResult.reason as Error)?.message ?? 'não foi possível carregar a licença.'}`)
+    setError(errors.join(' '))
   }, [])
 
-  useEffect(() => { void refresh().catch((err: unknown) => setError((err as Error).message)) }, [refresh])
+  useEffect(() => {
+    void refresh()
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refresh()
+    }
+    const interval = window.setInterval(refreshWhenVisible, 30_000)
+    window.addEventListener('focus', refreshWhenVisible)
+    document.addEventListener('visibilitychange', refreshWhenVisible)
+    return () => {
+      refreshSequence.current += 1
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refreshWhenVisible)
+      document.removeEventListener('visibilitychange', refreshWhenVisible)
+    }
+  }, [refresh])
 
   const invite = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setError(''); setNotice(''); setBusy(true)
@@ -75,7 +104,7 @@ export default function Members() {
     </section>
 
     <section className="card team-devices-card"><div className="section-card-heading"><div><h2>Dispositivos da Equipe</h2><p className="muted">Computadores com o plugin SketchUp autorizado. Cada pessoa pode usar um computador.</p></div><span className="badge none">{devices.length} conectado(s)</span></div>
-      {devices.length === 0 ? <p className="empty">Nenhum dispositivo conectado ainda.</p> : <div className="table-wrap"><table className="table team-device-table"><thead><tr><th>Membro</th><th>Máquina</th><th>Último uso</th><th>Ações</th></tr></thead><tbody>{devices.map((device) => <tr key={device.id}><td><strong>{device.memberName || 'Membro da equipe'}</strong><small className="table-subtitle">{device.memberEmail || ''}</small></td><td>{device.name}</td><td>{new Date(device.lastSeen).toLocaleString('pt-BR')}</td><td className="right"><button className="btn danger sm" disabled={busy} onClick={() => void revoke(device)}>Revogar acesso</button></td></tr>)}</tbody></table></div>}
+      {devices.length === 0 ? <p className="empty">Nenhum computador autorizado encontrado. O registro acontece quando a pessoa entra no plugin GOACM pelo SketchUp.</p> : <div className="table-wrap"><table className="table team-device-table"><thead><tr><th>Membro</th><th>Máquina</th><th>Último uso</th><th>Ações</th></tr></thead><tbody>{devices.map((device) => <tr key={device.id}><td><strong>{device.memberName || 'Membro da equipe'}</strong><small className="table-subtitle">{device.memberEmail || ''}</small></td><td>{device.name}</td><td>{new Date(device.lastSeen).toLocaleString('pt-BR')}</td><td className="right"><button className="btn danger sm" disabled={busy} onClick={() => void revoke(device)}>Revogar acesso</button></td></tr>)}</tbody></table></div>}
     </section>
   </div>
 }
