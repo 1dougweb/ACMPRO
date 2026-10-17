@@ -5,7 +5,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 // This ref is the one embedded by the SketchUp plugin candidate. Keeping the
 // portal on the same project is what makes a portal account usable in SketchUp.
-const pluginProjectRef = 'frjycxogwpondoaqlfwm'
+const pluginProjectRef = 'dqwrxsbekfeyzbzvnubg'
 
 function projectRefFromUrl(value: string | undefined) {
   if (!value) return null
