@@ -1,6 +1,7 @@
 import { SignJWT } from 'jose'
 import {
   ApiError,
+  type AdminOverview,
   type Api,
   type Device,
   type License,
@@ -82,6 +83,10 @@ export const mockApi: Api = {
   async getPublicOffers(): Promise<PublicOffers> {
     await delay(100)
     return { monthlyAmountCents: 9700, annualAmountCents: 97000, monthlyTrialDays: 7 }
+  },
+
+  async getAdminOverview(): Promise<AdminOverview> {
+    throw new ApiError('site_admin_required', 'A administração está disponível somente para contas autorizadas.')
   },
 
   async login(email, password) {

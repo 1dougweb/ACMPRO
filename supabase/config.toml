@@ -1,0 +1,32 @@
+[functions.public-offers]
+verify_jwt = false
+
+[functions.admin-overview]
+verify_jwt = true
+
+[functions.mercadopago-webhook]
+verify_jwt = false
+
+[functions.license-login]
+verify_jwt = false
+
+[functions.sketchup-auth]
+verify_jwt = false
+
+[functions.sketchup-refresh]
+verify_jwt = false
+
+[functions.register-device]
+verify_jwt = true
+
+[functions.check-subscription]
+verify_jwt = true
+
+[functions.sketchup-validate]
+verify_jwt = true
+
+[functions.sketchup-revoke]
+verify_jwt = true
+
+[functions.sketchup-locale]
+verify_jwt = true

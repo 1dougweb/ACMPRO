@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type Api, type Device, type License, type Member, type OfferKey, type PublicOffers, type User } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PublicOffers, type User } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -30,20 +30,36 @@ function projectRefFromLegacyKey(value: string | undefined) {
   }
 }
 
+function legacyKeyRole(value: string | undefined) {
+  const payload = value?.split('.')[1]
+  if (!payload) return null
+  try {
+    const base64 = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4)
+    return (JSON.parse(atob(padded)) as { role?: unknown }).role
+  } catch {
+    return null
+  }
+}
+
 const urlProjectRef = projectRefFromUrl(supabaseUrl)
 const keyProjectRef = projectRefFromLegacyKey(supabaseAnonKey)
+const privateKeyConfigured = Boolean(supabaseAnonKey?.startsWith('sb_secret_') || legacyKeyRole(supabaseAnonKey) === 'service_role')
 const projectMismatch = Boolean(
   (supabaseUrl && urlProjectRef !== pluginProjectRef)
   || (keyProjectRef && keyProjectRef !== pluginProjectRef),
 )
 
-const client = supabaseUrl && supabaseAnonKey && !projectMismatch
+const client = supabaseUrl && supabaseAnonKey && !projectMismatch && !privateKeyConfigured
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     })
   : null
 
 function configured() {
+  if (privateKeyConfigured) {
+    throw new ApiError('public_key_required', 'Use somente a chave pública anon ou publishable do Supabase no portal.')
+  }
   if (projectMismatch) {
     throw new ApiError(
       'backend_project_mismatch',
@@ -88,6 +104,10 @@ async function invoke<T>(name: string, body?: Record<string, unknown>): Promise<
 export const supabaseApi: Api = {
   async getPublicOffers(): Promise<PublicOffers> {
     return await invoke<PublicOffers>('public-offers')
+  },
+
+  async getAdminOverview(): Promise<AdminOverview> {
+    return await invoke<AdminOverview>('admin-overview')
   },
 
   async login(email, password) {

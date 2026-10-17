@@ -12,8 +12,6 @@ export function Logo({ to = '/' }: { to?: string }) {
 export default function AuthShell({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
   return (
     <main className="auth-page">
-      <div className="orb orb-a" />
-      <div className="orb orb-b" />
       <section className="auth-card">
         <Logo />
         <h1>{title}</h1>

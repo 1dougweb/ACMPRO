@@ -14,5 +14,9 @@ if (selectedMode !== 'mock' && selectedMode !== 'supabase') {
   throw new Error('VITE_API inválido. Use somente "mock" ou "supabase".')
 }
 
+if (import.meta.env.PROD && selectedMode !== 'supabase') {
+  throw new Error('O modo de demonstração está desativado em produção. Configure VITE_API=supabase.')
+}
+
 export const api: Api = selectedMode === 'mock' ? mockApi : supabaseApi
 export * from './types'

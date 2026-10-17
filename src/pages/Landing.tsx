@@ -40,8 +40,8 @@ export default function Landing() {
           <div className="sales-eyebrow"><span /> Plugin SketchUp · treinamento · suporte</div>
           <h1>Do modelo 3D à <em>produção.</em></h1>
           <p className="sales-lead">Modele estruturas e fachadas no SketchUp, extraia informações do projeto e aprenda a preparar a documentação para produção — com o GOACM ao seu lado.</p>
-          <div className="sales-hero-actions"><a className="sales-button" href="#planos">Ver planos e preços</a><a className="sales-button sales-button-quiet" href="#recursos">Conhecer o GOACM <span aria-hidden="true">↓</span></a></div>
-          <div className="sales-trust-row"><span>✓ 3 acessos por conta</span><span>✓ 1 computador por pessoa</span><span>✓ Treinamento e suporte incluídos</span></div>
+          <div className="sales-hero-actions"><a className="sales-button" href="#planos">Ver planos e preços</a><a className="sales-button sales-button-quiet" href="#recursos">Conhecer o GOACM</a></div>
+          <div className="sales-trust-row"><span>3 acessos por conta</span><span>1 computador por pessoa</span><span>Treinamento e suporte incluídos</span></div>
         </div>
 
         <div className="sales-preview" aria-label="Ilustração do fluxo de projeto no GOACM">
@@ -57,14 +57,14 @@ export default function Landing() {
                 <div className="sales-axis"><span>X</span><span>Y</span><span>Z</span></div>
               </div>
               <aside className="sales-preview-panel">
-                <div className="sales-panel-heading">Quantitativos <span>↗</span></div>
+                <div className="sales-panel-heading">Quantitativos</div>
                 <div className="sales-quantity"><span>Perfis</span><b>24 <small>un.</small></b></div>
                 <div className="sales-quantity"><span>Área</span><b>18,6 <small>m²</small></b></div>
                 <div className="sales-quantity"><span>Fixadores</span><b>32 <small>un.</small></b></div>
                 <div className="sales-panel-footer"><i /> Dados do projeto organizados</div>
               </aside>
             </div>
-            <div className="sales-preview-status"><span>PROJETO</span><b>Fachada comercial</b><span className="sales-status-right">● Salvo</span></div>
+            <div className="sales-preview-status"><span>PROJETO</span><b>Fachada comercial</b><span className="sales-status-right">Salvo</span></div>
           </div>
           <div className="sales-preview-note"><span>01</span><div><b>Do desenho ao planejamento</b><small>Um fluxo de trabalho no SketchUp</small></div></div>
         </div>
@@ -81,17 +81,17 @@ export default function Landing() {
         </div>
         <div className="sales-feature-grid">
           <article className="sales-feature-card sales-feature-main">
-            <span className="sales-feature-index">01 / MODELAGEM</span><div className="sales-feature-icon">⌘</div><h3>Estruturas inteligentes</h3>
+            <span className="sales-feature-index">01 / MODELAGEM</span><div className="sales-feature-icon">01</div><h3>Estruturas inteligentes</h3>
             <p>Ajuste montantes e travessas no SketchUp e acesse os comandos pelo menu radial.</p>
             <div className="sales-feature-art sales-art-structure" aria-hidden="true"><i /><i /><i /><i /><b /><b /></div>
           </article>
           <article className="sales-feature-card">
-            <span className="sales-feature-index">02 / PLANEJAMENTO</span><div className="sales-feature-icon">▤</div><h3>Quantitativos e cortes</h3>
+            <span className="sales-feature-index">02 / PLANEJAMENTO</span><div className="sales-feature-icon">02</div><h3>Quantitativos e cortes</h3>
             <p>Consulte comprimentos e quantidades, configure fixadores e organize o plano de corte.</p>
             <div className="sales-mini-list" aria-hidden="true"><i><b>Perfil A</b><span>6,00 m</span></i><i><b>Perfil B</b><span>4,80 m</span></i><i><b>Fixador</b><span>32 un.</span></i></div>
           </article>
           <article className="sales-feature-card">
-            <span className="sales-feature-index">03 / DOCUMENTAÇÃO</span><div className="sales-feature-icon">▧</div><h3>Do detalhe às pranchas</h3>
+            <span className="sales-feature-index">03 / DOCUMENTAÇÃO</span><div className="sales-feature-icon">03</div><h3>Do detalhe às pranchas</h3>
             <p>Aprenda a detalhar o projeto e organizar as pranchas de entrega no LayOut.</p>
             <div className="sales-sheet-art" aria-hidden="true"><div /><div /><div /><i /></div>
           </article>
@@ -102,14 +102,14 @@ export default function Landing() {
         <div className="sales-included-copy">
           <div className="sales-eyebrow">Um plano para aprender e fazer</div><h2>Ferramenta, treinamento e suporte. <em>Juntos.</em></h2>
           <p>Comece pelo essencial, desenvolva seu projeto e avance até a documentação técnica com conteúdo pensado para o fluxo de estruturas e fachadas.</p>
-          <a className="sales-text-link" href="#planos">Conhecer os planos <span aria-hidden="true">↗</span></a>
+          <a className="sales-text-link" href="#planos">Conhecer os planos</a>
         </div>
         <div className="sales-included-list">
-          <article><span>01</span><div><h3>Plugin GOACM para SketchUp</h3><p>Modelagem de estruturas, quantitativos, planificação e planos de corte.</p></div><b>✓</b></article>
-          <article><span>02</span><div><h3>Painel de gestão de projetos</h3><p>Organize os projetos e acompanhe as informações publicadas pelo plugin.</p></div><b>✓</b></article>
-          <article><span>03</span><div><h3>Treinamento do básico à documentação</h3><p>SketchUp, detalhamento técnico e organização de pranchas no LayOut.</p></div><b>✓</b></article>
-          <article><span>04</span><div><h3>Suporte e grupo VIP</h3><p>Dúvidas sobre o plugin e as aulas, inclusive pelo WhatsApp. Não inclui consultoria nem criação ou revisão de projetos.</p></div><b>✓</b></article>
-          <article><span>05</span><div><h3>Até três acessos</h3><p>Uma conta titular e dois membros. Cada pessoa pode autorizar um computador.</p></div><b>✓</b></article>
+          <article><span>01</span><div><h3>Plugin GOACM para SketchUp</h3><p>Modelagem de estruturas, quantitativos, planificação e planos de corte.</p></div><b>Incluído</b></article>
+          <article><span>02</span><div><h3>Painel de gestão de projetos</h3><p>Organize os projetos e acompanhe as informações publicadas pelo plugin.</p></div><b>Incluído</b></article>
+          <article><span>03</span><div><h3>Treinamento do básico à documentação</h3><p>SketchUp, detalhamento técnico e organização de pranchas no LayOut.</p></div><b>Incluído</b></article>
+          <article><span>04</span><div><h3>Suporte e grupo VIP</h3><p>Dúvidas sobre o plugin e as aulas, inclusive pelo WhatsApp. Não inclui consultoria nem criação ou revisão de projetos.</p></div><b>Incluído</b></article>
+          <article><span>05</span><div><h3>Até três acessos</h3><p>Uma conta titular e dois membros. Cada pessoa pode autorizar um computador.</p></div><b>Incluído</b></article>
         </div>
       </section>
 
@@ -122,7 +122,7 @@ export default function Landing() {
             <div className="sales-plan-note">{offers?.monthlyTrialDays ? `${offers.monthlyTrialDays} dias grátis; depois cobrança recorrente no cartão. Cancele antes da primeira cobrança pelo portal.` : 'Cobrança recorrente no cartão. Cancele a renovação pelo portal.'}</div>
             <ul><li>Plugin GOACM para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
             {offers
-              ? <Link className="sales-button" to={monthlyHref}>Assinar plano mensal <span aria-hidden="true">→</span></Link>
+              ? <Link className="sales-button" to={monthlyHref}>Assinar plano mensal</Link>
               : <button className="sales-button" disabled>{offersError ? 'Plano indisponível' : 'Carregando preço…'}</button>}
           </article>
           <article className="sales-plan-card">
@@ -131,7 +131,7 @@ export default function Landing() {
             <div className="sales-plan-note">Pagamento único via Pix. Sem renovação automática.</div>
             <ul><li>Plugin GOACM para SketchUp</li><li>Treinamento completo</li><li>Suporte e grupo VIP</li><li>3 acessos: titular + 2 membros</li><li>1 computador por pessoa</li></ul>
             {offers?.annualAmountCents
-              ? <Link className="sales-button sales-button-quiet" to={annualHref}>Comprar plano anual via Pix <span aria-hidden="true">→</span></Link>
+              ? <Link className="sales-button sales-button-quiet" to={annualHref}>Comprar plano anual via Pix</Link>
               : <button className="sales-button sales-button-quiet" disabled>{offersError ? 'Plano indisponível' : 'Carregando preço…'}</button>}
           </article>
         </div>

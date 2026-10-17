@@ -8,6 +8,26 @@ export interface PublicOffers {
   monthlyTrialDays: number
 }
 
+export interface AdminOverview {
+  accountCount: number
+  activeLicenseCount: number
+  activeMemberCount: number
+  pendingOrderCount: number
+  recentAccounts: Array<{
+    id: string
+    name: string
+    email: string | null
+    createdAt: string
+  }>
+  recentOrders: Array<{
+    id: string
+    offerKey: OfferKey
+    status: string
+    amountCents: number
+    createdAt: string
+  }>
+}
+
 export function isOfferKey(value: string | null): value is OfferKey {
   return value === 'pro_monthly' || value === 'pro_annual'
 }
@@ -56,6 +76,7 @@ export interface Member {
 
 export interface Api {
   getPublicOffers(): Promise<PublicOffers>
+  getAdminOverview(): Promise<AdminOverview>
   login(email: string, password: string): Promise<User>
   register(name: string, email: string, password: string): Promise<User>
   requestPasswordReset(email: string): Promise<void>

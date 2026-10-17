@@ -11,6 +11,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Landing from './pages/Landing'
 import { PrivacyPage, TermsPage } from './pages/LegalPages'
+import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
               <Route index element={<Dashboard />} />
               <Route path="devices" element={<Devices />} />
               <Route path="team" element={<Members />} />
+              <Route path="admin" element={<Admin />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

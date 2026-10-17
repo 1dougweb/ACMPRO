@@ -51,7 +51,7 @@ export default function Login() {
         {errors.email && <p className="err">{errors.email.message}</p>}
 
         <label className="field" htmlFor="login-password">Senha</label>
-        <input id="login-password" type="password" autoComplete="current-password" placeholder="••••••••" {...register('password')} />
+        <input id="login-password" type="password" autoComplete="current-password" placeholder="Sua senha" {...register('password')} />
         {errors.password && <p className="err">{errors.password.message}</p>}
         <p className="muted auth-helper"><Link to="/forgot-password">Esqueci minha senha</Link></p>
 
