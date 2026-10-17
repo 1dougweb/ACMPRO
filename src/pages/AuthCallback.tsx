@@ -38,9 +38,11 @@ export default function AuthCallback() {
       try {
         let user = await api.me()
         if (!user) {
-          // Retry once in case session is being restored
-          await new Promise((r) => setTimeout(r, 500))
-          user = await api.me()
+          for (let i = 0; i < 6; i++) {
+            await new Promise((r) => setTimeout(r, 400))
+            user = await api.me()
+            if (user) break
+          }
         }
 
         if (!user) {

@@ -70,9 +70,11 @@ export default function Plans() {
         <h1 className="page-title">Gerenciar assinatura</h1>
         <p className="muted">Consulte seu plano, validade e opções de pagamento.</p>
       </div>
-      <Link className="btn" to="/app">
-        <ArrowLeft size={14} /> Voltar aos projetos
-      </Link>
+      {active && (
+        <Link className="btn" to="/app">
+          <ArrowLeft size={14} /> Voltar aos projetos
+        </Link>
+      )}
     </div>
     {error && <div className="alert" role="alert"><AlertTriangle size={16} /> {error}</div>}
     {notice && <div className="success" role="status"><CheckCircle2 size={16} /> {notice}</div>}
@@ -135,9 +137,11 @@ export default function Plans() {
     <section className="card plans-help">
       <h2><HelpCircle size={17} style={{ display: 'inline', verticalAlign: '-3px', marginRight: 6, color: 'var(--brand)' }} />Precisa de ajuda?</h2>
       <p className="muted">Se houver uma divergência no status do pagamento, atualize a página alguns instantes após a confirmação do Mercado Pago.</p>
-      <Link to="/app/team" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-        <Users size={14} /> Gerenciar equipe e dispositivos
-      </Link>
+      {active && (
+        <Link to="/app/team" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <Users size={14} /> Gerenciar equipe e dispositivos
+        </Link>
+      )}
     </section>
   </div>
 }

@@ -143,37 +143,69 @@ export default function ProfileModal({ onClose }: { onClose: () => void }) {
             </button>
           </div>
         </form>
-        <section className="profile-devices">
-          <div className="profile-devices-heading">
-            <div>
-              <h3>Dispositivos autorizados</h3>
-              <p className="muted">Cada pessoa pode autorizar um computador para usar o plugin.</p>
-            </div>
-            <span className="device-count">{devices.length}/1</span>
-          </div>
-          {loading ? (
-            <p className="empty">Carregando dispositivos…</p>
-          ) : devices.length === 0 ? (
-            <p className="empty">Nenhum computador autorizado nesta conta.</p>
-          ) : (
-            devices.map((device) => (
-              <article className="profile-device" key={device.id}>
-                <div className="device-monitor" aria-hidden="true">
-                  <Laptop size={22} />
+        {(() => {
+          const hasActivePlan = Boolean(
+            license && (
+              license.lifetime ||
+              license.status === 'active' ||
+              (license.plan !== 'free' && license.status !== 'expired' && license.status !== 'suspended')
+            )
+          )
+          if (!hasActivePlan) {
+            return (
+              <section className="profile-devices">
+                <div className="profile-devices-heading">
+                  <div>
+                    <h3>Dispositivos autorizados</h3>
+                    <p className="muted">Conecte seu computador no plugin SketchUp com sua conta.</p>
+                  </div>
                 </div>
-                <div className="profile-device-info">
-                  <strong>{device.name}</strong>
-                  <span>Conectado em {new Date(device.lastSeen).toLocaleDateString('pt-BR')}</span>
-                  <small>Último uso: {new Date(device.lastSeen).toLocaleString('pt-BR')}</small>
+                <div style={{ textAlign: 'center', padding: '24px 16px', background: '#f8fafc', borderRadius: 8, border: '1px solid var(--border)' }}>
+                  <Laptop size={30} style={{ color: '#94a3b8', margin: '0 auto 8px' }} />
+                  <p style={{ fontWeight: 600, color: '#1e293b', marginBottom: 4 }}>Nenhum plano ativo</p>
+                  <p className="muted" style={{ fontSize: 13, marginBottom: 16 }}>Assine um plano para autorizar computadores e utilizar o plugin GOACM no SketchUp.</p>
+                  <Link className="btn primary sm" to="/app/plans" onClick={onClose}>
+                    <CreditCard size={14} /> Escolher plano
+                  </Link>
                 </div>
-                <button type="button" className="btn danger sm" disabled={busy} onClick={() => void revoke(device)}>
-                  <Trash2 size={12} /> Desconectar
-                </button>
-              </article>
-            ))
-          )}
-          <p className="hint">Para trocar de máquina, desconecte a atual e entre no GOACM pelo SketchUp no novo computador.</p>
-        </section>
+              </section>
+            )
+          }
+
+          return (
+            <section className="profile-devices">
+              <div className="profile-devices-heading">
+                <div>
+                  <h3>Dispositivos autorizados</h3>
+                  <p className="muted">Cada pessoa pode autorizar um computador para usar o plugin.</p>
+                </div>
+                <span className="device-count">{devices.length}/1</span>
+              </div>
+              {loading ? (
+                <p className="empty">Carregando dispositivos…</p>
+              ) : devices.length === 0 ? (
+                <p className="empty">Nenhum computador autorizado nesta conta.</p>
+              ) : (
+                devices.map((device) => (
+                  <article className="profile-device" key={device.id}>
+                    <div className="device-monitor" aria-hidden="true">
+                      <Laptop size={22} />
+                    </div>
+                    <div className="profile-device-info">
+                      <strong>{device.name}</strong>
+                      <span>Conectado em {new Date(device.lastSeen).toLocaleDateString('pt-BR')}</span>
+                      <small>Último uso: {new Date(device.lastSeen).toLocaleString('pt-BR')}</small>
+                    </div>
+                    <button type="button" className="btn danger sm" disabled={busy} onClick={() => void revoke(device)}>
+                      <Trash2 size={12} /> Desconectar
+                    </button>
+                  </article>
+                ))
+              )}
+              <p className="hint">Para trocar de máquina, desconecte a atual e entre no GOACM pelo SketchUp no novo computador.</p>
+            </section>
+          )
+        })()}
       </section>
     </div>
   )
