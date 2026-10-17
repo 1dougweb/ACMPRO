@@ -83,6 +83,7 @@ function asUser(user: SupabaseUser): User {
     id: user.id,
     name: String(user.user_metadata.name ?? user.user_metadata.full_name ?? user.email?.split('@')[0] ?? 'Usuário'),
     email: user.email ?? '',
+    phone: typeof user.user_metadata.phone === 'string' ? user.user_metadata.phone : '',
   }
 }
 
@@ -143,6 +144,14 @@ export const supabaseApi: Api = {
     return asUser(data.user)
   },
 
+  async updateProfile(profile) {
+    const { data, error } = await configured().auth.updateUser({
+      data: { name: profile.name.trim(), phone: profile.phone.trim() },
+    })
+    if (error) throw asApiError(error)
+    return asUser(data.user)
+  },
+
   async logout() {
     const { error } = await configured().auth.signOut()
     if (error) throw asApiError(error)
@@ -184,8 +193,8 @@ export const supabaseApi: Api = {
     return result.members
   },
 
-  async inviteMember(email: string): Promise<Member> {
-    const result = await invoke<{ member: Member }>('members-invite', { email })
+  async inviteMember(email: string, profile): Promise<Member> {
+    const result = await invoke<{ member: Member }>('members-invite', { email, ...profile })
     return result.member
   },
 

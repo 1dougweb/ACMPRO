@@ -9,8 +9,10 @@ Deno.serve(async (req) => {
   if (!ctx) return respond(req, { error: 'unauthorized', message: 'Entre novamente no portal.' }, 401)
 
   try {
-    const body = await req.json().catch(() => null) as { email?: string } | null
+    const body = await req.json().catch(() => null) as { email?: string; name?: string; preferredLocale?: 'pt-BR' | 'en' | 'es' } | null
     const email = body?.email?.trim().toLowerCase()
+    const name = body?.name?.trim().slice(0, 120) || null
+    const preferredLocale = ['pt-BR', 'en', 'es'].includes(body?.preferredLocale ?? '') ? body?.preferredLocale : 'pt-BR'
     if (!email || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return respond(req, { error: 'bad_request', message: 'Informe um e-mail válido.' }, 400)
     }
@@ -48,7 +50,8 @@ Deno.serve(async (req) => {
       account_id: member.account_id,
       user_id: isConfirmed ? existingUser?.user_id : null,
       email,
-      display_name: null,
+      display_name: name,
+      preferred_locale: preferredLocale,
       role: 'member',
       status: isConfirmed ? 'active' : 'invited',
       invited_at: new Date().toISOString(),
@@ -64,7 +67,7 @@ Deno.serve(async (req) => {
       const { error: mailError } = await ctx.admin.auth.admin.inviteUserByEmail(email, {
         redirectTo: portalUrl('/login'),
         data: {
-          name: email.split('@')[0],
+          name: name || email.split('@')[0],
           license_member_invitation_id: invited.id,
         },
       })

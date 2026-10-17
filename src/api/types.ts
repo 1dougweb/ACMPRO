@@ -36,6 +36,7 @@ export interface User {
   id: string
   name: string
   email: string
+  phone?: string
 }
 
 export interface Device {
@@ -75,11 +76,14 @@ export interface Member {
   createdAt: string
 }
 
+export type PreferredLocale = 'pt-BR' | 'en' | 'es'
+
 export interface Api {
   getPublicOffers(): Promise<PublicOffers>
   getAdminOverview(): Promise<AdminOverview>
   login(email: string, password: string): Promise<User>
   register(name: string, email: string, password: string): Promise<User>
+  updateProfile(profile: { name: string; phone: string }): Promise<User>
   requestPasswordReset(email: string): Promise<void>
   updatePassword(password: string): Promise<void>
   logout(): Promise<void>
@@ -87,7 +91,7 @@ export interface Api {
   getLicense(): Promise<License>
   listDevices(): Promise<Device[]>
   listMembers(): Promise<Member[]>
-  inviteMember(email: string): Promise<Member>
+  inviteMember(email: string, profile?: { name?: string; preferredLocale?: PreferredLocale }): Promise<Member>
   removeMember(id: string): Promise<void>
   startCheckout(offer: OfferKey): Promise<{ url: string }>
   cancelSubscription(): Promise<void>

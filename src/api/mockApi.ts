@@ -64,7 +64,7 @@ function required(): Account {
   return acc
 }
 
-const pub = (a: Account): User => ({ id: a.id, name: a.name, email: a.email })
+const pub = (a: Account): User => ({ id: a.id, name: a.name, email: a.email, phone: a.phone ?? '' })
 
 export async function signLicenseToken(a: Pick<Account, 'id' | 'plan' | 'expiresAt'>) {
   return new SignJWT({
@@ -121,6 +121,17 @@ export const mockApi: Api = {
     return pub(acc)
   },
 
+  async updateProfile(profile) {
+    await delay()
+    const account = required()
+    const db = load()
+    const target = db.find((item) => item.id === account.id)!
+    target.name = profile.name.trim()
+    target.phone = profile.phone.trim()
+    save(db)
+    return pub(target)
+  },
+
   async logout() {
     await delay(100)
     localStorage.removeItem(SESSION)
@@ -172,7 +183,7 @@ export const mockApi: Api = {
     return account.members ?? [{ id: account.id, email: account.email, name: account.name, role: 'owner', status: 'active', createdAt: new Date().toISOString() }]
   },
 
-  async inviteMember(email) {
+  async inviteMember(email, profile) {
     await delay()
     const account = required()
     const db = load()
@@ -185,7 +196,7 @@ export const mockApi: Api = {
     if (target.members.filter((member) => member.status !== 'removed').length >= 3) {
       throw new ApiError('seat_limit', 'O plano atual permite até 3 acessos, incluindo o titular.')
     }
-    const member: Member = { id: uid(), email: normalizedEmail, name: null, role: 'member', status: 'invited', createdAt: new Date().toISOString() }
+    const member: Member = { id: uid(), email: normalizedEmail, name: profile?.name?.trim() || null, role: 'member', status: 'invited', createdAt: new Date().toISOString() }
     target.members.push(member)
     save(db)
     return member

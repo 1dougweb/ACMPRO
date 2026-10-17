@@ -6,6 +6,7 @@ interface AuthState {
   loading: boolean
   login: (email: string, password: string) => Promise<void>
   register: (name: string, email: string, password: string) => Promise<void>
+  updateProfile: (profile: { name: string; phone: string }) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -25,14 +26,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (name: string, email: string, password: string) => {
     setUser(await api.register(name, email, password))
   }, [])
+  const updateProfile = useCallback(async (profile: { name: string; phone: string }) => {
+    setUser(await api.updateProfile(profile))
+  }, [])
   const logout = useCallback(async () => {
     await api.logout()
     setUser(null)
   }, [])
 
   const value = useMemo(
-    () => ({ user, loading, login, register, logout }),
-    [user, loading, login, register, logout],
+    () => ({ user, loading, login, register, updateProfile, logout }),
+    [user, loading, login, register, updateProfile, logout],
   )
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
 }
