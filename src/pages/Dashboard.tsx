@@ -140,8 +140,8 @@ export default function Dashboard() {
           </div>
           <div className="big">{hasSubscription ? PLAN_LABELS[license.plan] : license.status === 'pending' ? 'Pro' : '—'}</div>
           <div className="stat-row">
-            <div><span className="label">Validade</span><strong>{license.expiresAt ? new Date(license.expiresAt).toLocaleDateString('pt-BR') : '—'}</strong></div>
-            <div><span className="label">Dias restantes</span><strong>{days ?? '—'}</strong></div>
+            <div><span className="label">Validade</span><strong>{license.lifetime ? 'Vitalícia' : license.expiresAt ? new Date(license.expiresAt).toLocaleDateString('pt-BR') : '—'}</strong></div>
+            <div><span className="label">Dias restantes</span><strong>{license.lifetime ? '∞' : days ?? '—'}</strong></div>
           </div>
           {trialIsActive && <p className="hint">Seu teste grátis termina em {new Date(license.trialEndsAt!).toLocaleDateString('pt-BR')}. A primeira cobrança mensal acontece depois dessa data.</p>}
           {license.cancelAtPeriodEnd && <p className="hint">A renovação foi cancelada. O acesso permanece até {trialIsActive ? 'o fim do teste grátis' : 'a data de validade'}.</p>}
@@ -158,8 +158,8 @@ export default function Dashboard() {
 
         <section className="card">
           <span className="label">Acessos da equipe</span>
-          <div className="big">{license.seatsUsed ?? '—'}<small> / {license.seatLimit ?? 3}</small></div>
-          <p className="hint">Titular e até dois membros; cada pessoa ativa usa 1 computador.</p>
+          <div className="big">{license.seatsUsed ?? '—'}<small> / {license.lifetime ? '∞' : license.seatLimit ?? 3}</small></div>
+          <p className="hint">{license.lifetime ? 'Convide quantas pessoas precisar; cada pessoa ativa usa 1 computador.' : 'Titular e até dois membros; cada pessoa ativa usa 1 computador.'}</p>
         </section>
       </div>
 

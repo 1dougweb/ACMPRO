@@ -54,7 +54,8 @@ export interface License {
   trialEndsAt?: string | null
   deviceLimit: number | null
   hasSubscription?: boolean
-  seatLimit?: number
+  lifetime?: boolean
+  seatLimit?: number | null
   seatsUsed?: number
   devicesUsed?: number
   role?: 'owner' | 'member'

@@ -61,12 +61,16 @@ export default function Members() {
 
   const used = members.filter((member) => member.status === 'active' || member.status === 'invited').length
   const owner = license.role === 'owner'
-  const canInvite = owner && license.status === 'active' && used < (license.seatLimit ?? 3)
+  const seatLimit = license.seatLimit === undefined ? 3 : license.seatLimit
+  const canInvite = owner && license.status === 'active' && (seatLimit === null || used < seatLimit)
+  const seatLabel = seatLimit === null ? 'Ilimitado' : seatLimit
 
   return (
     <>
       <h1 className="page-title">Equipe</h1>
-      <p className="muted">Gerencie até três acessos: o titular e mais duas pessoas.</p>
+      <p className="muted">{license.lifetime
+        ? owner ? 'Sua licença é vitalícia. Adicione as pessoas que poderão usar o plugin.' : 'Esta licença é vitalícia; somente o titular pode gerenciar os acessos.'
+        : 'Gerencie até três acessos: o titular e mais duas pessoas.'}</p>
       {error && <div className="alert" role="alert">{error}</div>}
       {notice && <div className="success" role="status">{notice}</div>}
 
@@ -76,7 +80,7 @@ export default function Members() {
             <h2>Acessos da licença</h2>
             <p className="muted">Convites pendentes também ocupam um acesso.</p>
           </div>
-          <span className="badge active">{used} / {license.seatLimit ?? 3}</span>
+          <span className="badge active">{used} / {seatLabel}</span>
         </div>
 
         {owner && license.status !== 'active' && <p className="hint">Uma licença Pro ativa é necessária para convidar membros.</p>}

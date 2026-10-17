@@ -15,10 +15,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const [accounts, activeLicenses, activeMembers, pendingOrders, recentAccounts, recentOrders] = await Promise.all([
+    const [accounts, activeLicenses, lifetimeEntitlements, activeMembers, pendingOrders, recentAccounts, recentOrders] = await Promise.all([
       ctx.admin.from('license_accounts').select('id', { count: 'exact', head: true }),
-      ctx.admin.from('license_subscriptions').select('id', { count: 'exact', head: true })
+      ctx.admin.from('license_subscriptions').select('account_id')
         .eq('status', 'active').gt('current_period_end', new Date().toISOString()),
+      ctx.admin.from('license_account_entitlements').select('account_id').eq('entitlement', 'lifetime'),
       ctx.admin.from('license_members').select('id', { count: 'exact', head: true }).eq('status', 'active'),
       ctx.admin.from('license_orders').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
       ctx.admin.from('license_accounts').select('id,name,created_at').order('created_at', { ascending: false }).limit(8),
@@ -26,7 +27,7 @@ Deno.serve(async (req) => {
         .order('created_at', { ascending: false }).limit(8),
     ])
 
-    const results = [accounts, activeLicenses, activeMembers, pendingOrders, recentAccounts, recentOrders]
+    const results = [accounts, activeLicenses, lifetimeEntitlements, activeMembers, pendingOrders, recentAccounts, recentOrders]
     const failed = results.find((result) => result.error)
     if (failed?.error) throw failed.error
 
@@ -42,10 +43,14 @@ Deno.serve(async (req) => {
     const orders = (recentOrders.data ?? []).filter((order) =>
       order.offer_key === 'pro_monthly' || order.offer_key === 'pro_annual',
     )
+    const activeAccountIds = new Set([
+      ...(activeLicenses.data ?? []).map((license) => license.account_id),
+      ...(lifetimeEntitlements.data ?? []).map((entitlement) => entitlement.account_id),
+    ])
 
     return respond(req, {
       accountCount: accounts.count ?? 0,
-      activeLicenseCount: activeLicenses.count ?? 0,
+      activeLicenseCount: activeAccountIds.size,
       activeMemberCount: activeMembers.count ?? 0,
       pendingOrderCount: pendingOrders.count ?? 0,
       recentAccounts: accountRows.map((account) => ({

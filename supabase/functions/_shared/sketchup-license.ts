@@ -50,6 +50,16 @@ export async function findMembership(admin: SupabaseClient, userId: string) {
 }
 
 export async function activeSubscription(admin: SupabaseClient, accountId: string) {
+  const { data: entitlement, error: entitlementError } = await admin.from('license_account_entitlements')
+    .select('entitlement')
+    .eq('account_id', accountId)
+    .eq('entitlement', 'lifetime')
+    .maybeSingle()
+  if (entitlementError) throw entitlementError
+  if (entitlement) {
+    return { id: null, offer_key: 'pro_lifetime', status: 'active', current_period_end: null, lifetime: true }
+  }
+
   const now = new Date()
   const { data, error } = await admin.from('license_subscriptions')
     .select('id,offer_key,status,current_period_end')
@@ -172,8 +182,10 @@ function base64url(bytes: Uint8Array) {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '')
 }
 
-export async function issueEntitlement(machineId: string, subscriptionEnd: string, now = Math.floor(Date.now() / 1000)) {
-  const exp = Math.min(Math.floor(new Date(subscriptionEnd).getTime() / 1000), now + OFFLINE_WINDOW_SECONDS)
+export async function issueEntitlement(machineId: string, subscriptionEnd: string | null, now = Math.floor(Date.now() / 1000)) {
+  const exp = subscriptionEnd
+    ? Math.min(Math.floor(new Date(subscriptionEnd).getTime() / 1000), now + OFFLINE_WINDOW_SECONDS)
+    : now + OFFLINE_WINDOW_SECONDS
   const payload = new TextEncoder().encode(JSON.stringify({ mid: machineId, sub: true, tier: 'pro', iat: now, exp }))
   const key = await entitlementSigningKey()
   const signature = new Uint8Array(await crypto.subtle.sign('Ed25519', key, payload))

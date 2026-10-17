@@ -19,15 +19,23 @@ Deno.serve(async (req) => {
     if (member.role !== 'owner') return respond(req, { error: 'owner_required', message: 'Somente o titular pode gerenciar os acessos.' }, 403)
     if (email === ctx.user.email?.toLowerCase()) return respond(req, { error: 'owner_email', message: 'O e-mail do titular já ocupa um acesso.' }, 409)
 
-    const { data: subscription, error: subscriptionError } = await ctx.admin.from('license_subscriptions')
-      .select('id,status,current_period_end')
-      .eq('account_id', member.account_id)
-      .in('status', ['active', 'past_due', 'canceled'])
-      .order('current_period_end', { ascending: false, nullsFirst: false })
-      .limit(1)
-    if (subscriptionError) throw subscriptionError
+    const [{ data: subscription, error: subscriptionError }, { data: entitlement, error: entitlementError }] = await Promise.all([
+      ctx.admin.from('license_subscriptions')
+        .select('id,status,current_period_end')
+        .eq('account_id', member.account_id)
+        .in('status', ['active', 'past_due', 'canceled'])
+        .order('current_period_end', { ascending: false, nullsFirst: false })
+        .limit(1),
+      ctx.admin.from('license_account_entitlements')
+        .select('entitlement')
+        .eq('account_id', member.account_id)
+        .eq('entitlement', 'lifetime')
+        .maybeSingle(),
+    ])
+    if (subscriptionError ?? entitlementError) throw subscriptionError ?? entitlementError
     const currentLicense = subscription?.[0]
-    if (!currentLicense?.current_period_end || new Date(currentLicense.current_period_end).getTime() <= Date.now()) {
+    const lifetime = entitlement?.entitlement === 'lifetime'
+    if (!lifetime && (!currentLicense?.current_period_end || new Date(currentLicense.current_period_end).getTime() <= Date.now())) {
       return respond(req, { error: 'active_license_required', message: 'A equipe fica disponível enquanto a licença Pro estiver ativa.' }, 403)
     }
 
@@ -48,7 +56,7 @@ Deno.serve(async (req) => {
     }).select('id,email,display_name,role,status,created_at').single()
     if (inviteError) {
       if (inviteError.code === '23505') return respond(req, { error: 'member_exists', message: 'Este e-mail já está em uma equipe ou possui um convite pendente.' }, 409)
-      if (inviteError.code === '23514') return respond(req, { error: 'seat_limit', message: 'Os três acessos disponíveis já estão ocupados.' }, 409)
+      if (inviteError.code === '23514') return respond(req, { error: 'seat_limit', message: 'Os acessos disponíveis já estão ocupados.' }, 409)
       throw inviteError
     }
 

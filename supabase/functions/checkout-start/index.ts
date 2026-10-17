@@ -46,7 +46,13 @@ Deno.serve(async (req) => {
       .gt('current_period_end', now)
       .limit(1)
     if (licenseError) throw licenseError
-    if (currentLicenses?.length) {
+    const { data: lifetimeEntitlement, error: entitlementError } = await ctx.admin.from('license_account_entitlements')
+      .select('account_id')
+      .eq('account_id', member.account_id)
+      .eq('entitlement', 'lifetime')
+      .maybeSingle()
+    if (entitlementError) throw entitlementError
+    if (currentLicenses?.length || lifetimeEntitlement) {
       return respond(req, { error: 'subscription_exists', message: 'Sua licença Pro ainda está válida.' }, 409)
     }
 

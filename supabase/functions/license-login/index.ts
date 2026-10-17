@@ -65,20 +65,30 @@ Deno.serve(async (req) => {
     if (!membership) return respond(req, { error: 'account_not_linked', message: 'Esta conta ainda não está vinculada a uma equipe GOACM ativa.' }, 403)
 
     const now = Date.now()
-    const { data: subscriptions, error: subscriptionError } = await admin.from('license_subscriptions')
-      .select('id,offer_key,status,current_period_end')
-      .eq('account_id', membership.account_id)
-      .in('status', ['active', 'past_due', 'canceled'])
-      .gt('current_period_end', new Date(now).toISOString())
-      .order('current_period_end', { ascending: false })
-      .limit(1)
-    if (subscriptionError) throw subscriptionError
+    const [{ data: subscriptions, error: subscriptionError }, { data: lifetimeEntitlement, error: entitlementError }] = await Promise.all([
+      admin.from('license_subscriptions')
+        .select('id,offer_key,status,current_period_end')
+        .eq('account_id', membership.account_id)
+        .in('status', ['active', 'past_due', 'canceled'])
+        .gt('current_period_end', new Date(now).toISOString())
+        .order('current_period_end', { ascending: false })
+        .limit(1),
+      admin.from('license_account_entitlements')
+        .select('account_id')
+        .eq('account_id', membership.account_id)
+        .eq('entitlement', 'lifetime')
+        .maybeSingle(),
+    ])
+    if (subscriptionError ?? entitlementError) throw subscriptionError ?? entitlementError
     const subscription = subscriptions?.[0]
-    if (!subscription?.current_period_end || new Date(subscription.current_period_end).getTime() <= now) {
+    const isLifetime = Boolean(lifetimeEntitlement)
+    if (!isLifetime && (!subscription?.current_period_end || new Date(subscription.current_period_end).getTime() <= now)) {
       return respond(req, { error: 'subscription_required', message: 'Sua assinatura Pro está inativa. Renove pelo portal GOACM.' }, 403)
     }
 
-    const expiresAt = new Date(subscription.current_period_end)
+    // The legacy SketchUp login receives a short-lived token; lifetime access is
+    // revalidated on the next login instead of embedding a non-revocable token.
+    const expiresAt = isLifetime ? new Date(Date.now() + 48 * 60 * 60 * 1000) : new Date(subscription!.current_period_end!)
     const token = await new SignJWT({ plan: 'pro', dev: deviceLimitPerPerson, grace_days: 7, mid: machineId })
       .setProtectedHeader({
         alg: 'RS256',
