@@ -15,7 +15,18 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const [accounts, activeLicenses, lifetimeEntitlements, activeMembers, pendingOrders, recentAccounts, recentOrders] = await Promise.all([
+    const [
+      accounts,
+      activeLicenses,
+      lifetimeEntitlements,
+      activeMembers,
+      pendingOrders,
+      recentAccounts,
+      recentOrders,
+      allOrders,
+      allAccounts,
+      allSubscriptions,
+    ] = await Promise.all([
       ctx.admin.from('license_accounts').select('id', { count: 'exact', head: true }),
       ctx.admin.from('license_subscriptions').select('account_id')
         .eq('status', 'active').gt('current_period_end', new Date().toISOString()),
@@ -25,6 +36,9 @@ Deno.serve(async (req) => {
       ctx.admin.from('license_accounts').select('id,name,created_at').order('created_at', { ascending: false }).limit(8),
       ctx.admin.from('license_orders').select('id,offer_key,status,amount_cents,created_at')
         .order('created_at', { ascending: false }).limit(8),
+      ctx.admin.from('license_orders').select('id,offer_key,status,amount_cents,paid_at,created_at'),
+      ctx.admin.from('license_accounts').select('id,created_at'),
+      ctx.admin.from('license_subscriptions').select('account_id,status,current_period_end'),
     ])
 
     const results = [accounts, activeLicenses, lifetimeEntitlements, activeMembers, pendingOrders, recentAccounts, recentOrders]
@@ -48,6 +62,109 @@ Deno.serve(async (req) => {
       ...(lifetimeEntitlements.data ?? []).map((entitlement) => entitlement.account_id),
     ])
 
+    // ==========================================
+    // Cálculos Financeiros e Crescimento da Plataforma
+    // ==========================================
+    const now = new Date()
+    const currentYear = now.getFullYear()
+    const currentMonth = now.getMonth()
+
+    const startOfMonth = new Date(currentYear, currentMonth, 1)
+    const startOfPrevMonth = new Date(currentYear, currentMonth - 1, 1)
+    const endOfPrevMonth = new Date(currentYear, currentMonth, 0, 23, 59, 59, 999)
+
+    const ordersList = allOrders.data ?? []
+    const paidOrders = ordersList.filter((o) => o.status === 'paid')
+
+    let totalRevenueCents = 0
+    let monthRevenueCents = 0
+    let prevMonthRevenueCents = 0
+    let monthlyRevenueShareCents = 0
+    let annualRevenueShareCents = 0
+
+    for (const o of paidOrders) {
+      const amount = o.amount_cents || 0
+      totalRevenueCents += amount
+
+      if (o.offer_key === 'pro_monthly') {
+        monthlyRevenueShareCents += amount
+      } else if (o.offer_key === 'pro_annual') {
+        annualRevenueShareCents += amount
+      }
+
+      const orderDate = new Date(o.paid_at || o.created_at)
+      if (orderDate >= startOfMonth) {
+        monthRevenueCents += amount
+      } else if (orderDate >= startOfPrevMonth && orderDate <= endOfPrevMonth) {
+        prevMonthRevenueCents += amount
+      }
+    }
+
+    const revenueGrowthPct = prevMonthRevenueCents > 0
+      ? Math.round(((monthRevenueCents - prevMonthRevenueCents) / prevMonthRevenueCents) * 100)
+      : (monthRevenueCents > 0 ? 100 : 0)
+
+    const averageTicketCents = paidOrders.length > 0
+      ? Math.round(totalRevenueCents / paidOrders.length)
+      : 0
+
+    // Contas e crescimento de clientes
+    const accountsList = allAccounts.data ?? []
+    let monthNewAccounts = 0
+    let prevMonthNewAccounts = 0
+
+    for (const acc of accountsList) {
+      const accDate = new Date(acc.created_at)
+      if (accDate >= startOfMonth) {
+        monthNewAccounts++
+      } else if (accDate >= startOfPrevMonth && accDate <= endOfPrevMonth) {
+        prevMonthNewAccounts++
+      }
+    }
+
+    const accountsGrowthPct = prevMonthNewAccounts > 0
+      ? Math.round(((monthNewAccounts - prevMonthNewAccounts) / prevMonthNewAccounts) * 100)
+      : (monthNewAccounts > 0 ? 100 : 0)
+
+    const totalAccountsCount = accounts.count ?? accountsList.length
+    const conversionRatePct = totalAccountsCount > 0
+      ? Math.min(100, Math.round((activeAccountIds.size / totalAccountsCount) * 1000) / 10)
+      : 0
+
+    const activeSubs = (allSubscriptions.data ?? []).filter((s) => s.status === 'active')
+    const estimatedMrrCents = activeSubs.length > 0
+      ? activeSubs.length * 9700
+      : (activeAccountIds.size > 0 ? activeAccountIds.size * 9700 : monthRevenueCents)
+
+    // Histórico dos últimos 6 meses para visualização gráfica
+    const monthNames = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+    const history = []
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(currentYear, currentMonth - i, 1)
+      const mStart = new Date(d.getFullYear(), d.getMonth(), 1)
+      const mEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999)
+      const label = `${monthNames[d.getMonth()]}/${String(d.getFullYear()).slice(-2)}`
+
+      const monthOrders = paidOrders.filter((o) => {
+        const od = new Date(o.paid_at || o.created_at)
+        return od >= mStart && od <= mEnd
+      })
+
+      const monthRev = monthOrders.reduce((acc, o) => acc + (o.amount_cents || 0), 0)
+      const monthAccs = accountsList.filter((a) => {
+        const ad = new Date(a.created_at)
+        return ad >= mStart && ad <= mEnd
+      }).length
+
+      history.push({
+        month: label,
+        revenueCents: monthRev,
+        ordersCount: monthOrders.length,
+        newAccounts: monthAccs,
+      })
+    }
+
     return respond(req, {
       accountCount: accounts.count ?? 0,
       activeLicenseCount: activeAccountIds.size,
@@ -66,9 +183,26 @@ Deno.serve(async (req) => {
         amountCents: order.amount_cents,
         createdAt: order.created_at,
       })),
+      financials: {
+        totalRevenueCents,
+        monthRevenueCents,
+        prevMonthRevenueCents,
+        revenueGrowthPct,
+        monthlyRevenueShareCents,
+        annualRevenueShareCents,
+        averageTicketCents,
+        estimatedMrrCents,
+      },
+      growth: {
+        monthNewAccounts,
+        prevMonthNewAccounts,
+        accountsGrowthPct,
+        conversionRatePct,
+        history,
+      },
     })
   } catch (error) {
     console.error('admin-overview failed', errorMessage(error))
-    return respond(req, { error: 'admin_overview_unavailable', message: 'Não foi possível carregar os dados administrativos.' }, 500)
+    return respond(req, { error: 'admin_overview_unavailable', message: errorMessage(error) || 'Não foi possível carregar os dados administrativos.' }, 500)
   }
 })

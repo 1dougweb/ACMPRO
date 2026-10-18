@@ -52,6 +52,30 @@ export interface PublicOffers {
   monthlyTrialDays: number
 }
 
+export interface AdminFinancialSummary {
+  totalRevenueCents: number
+  monthRevenueCents: number
+  prevMonthRevenueCents: number
+  revenueGrowthPct: number
+  monthlyRevenueShareCents: number
+  annualRevenueShareCents: number
+  averageTicketCents: number
+  estimatedMrrCents: number
+}
+
+export interface AdminGrowthSummary {
+  monthNewAccounts: number
+  prevMonthNewAccounts: number
+  accountsGrowthPct: number
+  conversionRatePct: number
+  history: Array<{
+    month: string
+    revenueCents: number
+    ordersCount: number
+    newAccounts: number
+  }>
+}
+
 export interface AdminOverview {
   accountCount: number
   activeLicenseCount: number
@@ -70,6 +94,8 @@ export interface AdminOverview {
     amountCents: number
     createdAt: string
   }>
+  financials?: AdminFinancialSummary
+  growth?: AdminGrowthSummary
 }
 
 export function isOfferKey(value: string | null): value is OfferKey {
