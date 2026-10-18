@@ -49,38 +49,40 @@ export default function AdminEnv() {
       {loading ? (
         <div style={{ padding: '60px 0', textAlign: 'center', color: '#10b981' }}>
           <Loader2 size={28} className="spin" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 8px' }} />
-          <p style={{ color: '#94a3b8', fontSize: 13 }}>Executando diagnóstico de conexões…</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>Executando diagnóstico de conexões…</p>
         </div>
       ) : error || !env ? (
         <div className="admin-card" style={{ borderColor: 'rgba(239, 68, 68, 0.4)' }}>
-          <p style={{ color: '#f87171' }}><AlertCircle size={16} /> {error || 'Não foi possível ler variáveis.'}</p>
+          <p style={{ color: '#dc2626', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <AlertCircle size={16} /> {error || 'Não foi possível ler variáveis.'}
+          </p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: 24 }}>
           {/* Mercado Pago */}
           <div className="admin-card">
             <h2 style={{ fontSize: 16, marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Server size={18} style={{ color: '#38bdf8' }} /> Integração Mercado Pago
+              <Server size={18} style={{ color: '#0284c7' }} /> Integração Mercado Pago
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Token de Acesso (MP_ACCESS_TOKEN)</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Token de Acesso (MP_ACCESS_TOKEN)</span>
                 <span className={`admin-badge ${env.mercadoPago.configured ? 'active' : 'expired'}`}>
                   {env.mercadoPago.configured ? 'Configurado' : 'Ausente'}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Modo de Operação</span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#f8fafc' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Modo de Operação</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>
                   {env.mercadoPago.mode}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Visualização Mascarada</span>
-                <code style={{ fontSize: 12, color: '#38bdf8' }}>{env.mercadoPago.tokenPreview}</code>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Visualização Mascarada</span>
+                <code style={{ fontSize: 12, color: '#0369a1', background: '#e0f2fe', padding: '2px 8px', borderRadius: 4, border: '1px solid #bae6fd' }}>{env.mercadoPago.tokenPreview}</code>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Chave Webhook (MP_WEBHOOK_SECRET)</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Chave Webhook (MP_WEBHOOK_SECRET)</span>
                 <span className={`admin-badge ${env.mercadoPago.webhookConfigured ? 'active' : 'pending'}`}>
                   {env.mercadoPago.webhookConfigured ? 'Ativa' : 'Pendente'}
                 </span>
@@ -91,26 +93,26 @@ export default function AdminEnv() {
           {/* Segurança & Licenciamento */}
           <div className="admin-card">
             <h2 style={{ fontSize: 16, marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ShieldCheck size={18} style={{ color: '#10b981' }} /> Segurança e Licenças Offline
+              <ShieldCheck size={18} style={{ color: '#059669' }} /> Segurança e Licenças Offline
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Chave Ed25519 de Licença</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Chave Ed25519 de Licença</span>
                 <span className={`admin-badge ${env.security.entitlementKey ? 'active' : 'pending'}`}>
                   {env.security.entitlementKey ? 'Configurada' : 'Pendente'}
                 </span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Assinador GOACM Plugin</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <span style={{ fontSize: 13, color: 'var(--muted)' }}>Assinador GOACM Plugin</span>
                 <span className={`admin-badge ${env.security.licenseSigningKey ? 'active' : 'pending'}`}>
                   {env.security.licenseSigningKey ? 'Configurado' : 'Pendente'}
                 </span>
               </div>
-              <div style={{ padding: '12px 14px', background: '#0f172a', borderRadius: 8 }}>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 6 }}>Administradores Autorizados (SITE_ADMIN_EMAILS):</div>
+              <div style={{ padding: '12px 14px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8 }}>
+                <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Administradores Autorizados (SITE_ADMIN_EMAILS):</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {env.security.adminEmails.map((email) => (
-                    <span key={email} style={{ fontSize: 12, background: 'rgba(255, 255, 255, 0.08)', padding: '2px 8px', borderRadius: 4, color: '#f8fafc' }}>
+                    <span key={email} style={{ fontSize: 12, background: 'var(--surface)', border: '1px solid var(--border)', padding: '2px 8px', borderRadius: 4, color: 'var(--text)', fontWeight: 500 }}>
                       {email}
                     </span>
                   ))}
@@ -122,14 +124,14 @@ export default function AdminEnv() {
           {/* Infraestrutura Supabase */}
           <div className="admin-card" style={{ gridColumn: '1 / -1' }}>
             <h2 style={{ fontSize: 16, marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Lock size={18} style={{ color: '#c084fc' }} /> Infraestrutura e Proteção de Segredos
+              <Lock size={18} style={{ color: '#7c3aed' }} /> Infraestrutura e Proteção de Segredos
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.6, margin: '0 0 16px' }}>
+            <p style={{ color: 'var(--muted)', fontSize: 13, lineHeight: 1.6, margin: '0 0 16px' }}>
               Por segurança, chaves de produção completas (privadas e tokens de pagamentos) nunca são expostas ao navegador. Para alterar credenciais do Mercado Pago ou chaves de webhook, utilize o painel de <strong>Project Settings → Edge Functions Secrets</strong> no Supabase.
             </p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: '#0f172a', borderRadius: 8, fontSize: 13 }}>
-              <CheckCircle2 size={18} style={{ color: '#10b981' }} />
-              <span>Banco de Dados Supabase Conectado • Host: <strong>{env.system.supabaseUrl}</strong></span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13 }}>
+              <CheckCircle2 size={18} style={{ color: '#059669' }} />
+              <span style={{ color: 'var(--text)' }}>Banco de Dados Supabase Conectado • Host: <strong>{env.system.supabaseUrl}</strong></span>
             </div>
           </div>
         </div>

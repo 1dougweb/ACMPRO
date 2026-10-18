@@ -113,8 +113,8 @@ export default function AdminPricing() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginBottom: 24 }}>
               {/* Pro Mensal */}
-              <div style={{ background: '#0f172a', padding: 20, borderRadius: 10, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, color: '#34d399', fontWeight: 600 }}>
+              <div style={{ background: 'var(--bg)', padding: 20, borderRadius: 10, border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, color: 'var(--brand-dark)', fontWeight: 600 }}>
                   <CreditCard size={18} /> Plano Pro Mensal
                 </div>
                 <div className="admin-form-group">
@@ -127,13 +127,13 @@ export default function AdminPricing() {
                     placeholder="97.00"
                     required
                   />
-                  <small style={{ color: '#64748b', fontSize: 12 }}>Cobrança recorrente no cartão pelo Mercado Pago.</small>
+                  <small style={{ color: 'var(--muted)', fontSize: 12 }}>Cobrança recorrente no cartão pelo Mercado Pago.</small>
                 </div>
               </div>
 
               {/* Pro Anual */}
-              <div style={{ background: '#0f172a', padding: 20, borderRadius: 10, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, color: '#fbbf24', fontWeight: 600 }}>
+              <div style={{ background: 'var(--bg)', padding: 20, borderRadius: 10, border: '1px solid var(--border)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, color: '#d97706', fontWeight: 600 }}>
                   <Zap size={18} /> Plano Pro Anual
                 </div>
                 <div className="admin-form-group">
@@ -146,13 +146,13 @@ export default function AdminPricing() {
                     placeholder="970.00"
                     required
                   />
-                  <small style={{ color: '#64748b', fontSize: 12 }}>Pagamento anual à vista (Pix ou cartão) por 12 meses.</small>
+                  <small style={{ color: 'var(--muted)', fontSize: 12 }}>Pagamento anual à vista (Pix ou cartão) por 12 meses.</small>
                 </div>
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: 18 }}>
-              <div style={{ fontSize: 12, color: '#64748b', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14, borderTop: '1px solid var(--border)', paddingTop: 18 }}>
+              <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
                 <Info size={14} />
                 Última alteração por: <strong>{pricing?.updatedBy || 'Sistema'}</strong>
                 {pricing?.updatedAt && (

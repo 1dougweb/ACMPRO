@@ -86,7 +86,7 @@ export default function AdminPlugins() {
           <p>Faça upload de novas versões compiladas (.rbz). O SketchUp notificará e atualizará os usuários automaticamente.</p>
         </div>
         {releases[0] && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 8, fontSize: 13, color: '#34d399' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', borderRadius: 8, fontSize: 13, color: 'var(--brand-dark)', fontWeight: 500 }}>
             <Sparkles size={16} />
             <span>Versão ativa no SketchUp: <strong>v{releases[0].version}</strong></span>
           </div>
@@ -94,8 +94,8 @@ export default function AdminPlugins() {
       </div>
 
       {success && (
-        <div className="admin-card" style={{ background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.3)', padding: 16 }}>
-          <p style={{ color: '#34d399', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="admin-card" style={{ background: 'var(--brand-surface)', borderColor: 'var(--brand-border)', padding: 16 }}>
+          <p style={{ color: 'var(--brand-dark)', margin: 0, display: 'flex', alignItems: 'center', gap: 8, fontWeight: 500 }}>
             <CheckCircle2 size={18} /> {success}
           </p>
         </div>
@@ -103,7 +103,7 @@ export default function AdminPlugins() {
 
       {error && (
         <div className="admin-card" style={{ borderColor: 'rgba(239, 68, 68, 0.4)', padding: 16 }}>
-          <p style={{ color: '#f87171', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <p style={{ color: '#dc2626', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
             <AlertCircle size={18} /> {error}
           </p>
         </div>
@@ -162,7 +162,7 @@ export default function AdminPlugins() {
           </div>
 
           <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 14 }}>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: '#cbd5e1' }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, color: 'var(--text)' }}>
               <input
                 type="checkbox"
                 checked={uploadMandatory}
@@ -181,16 +181,16 @@ export default function AdminPlugins() {
       {/* Histórico de Releases */}
       <div className="admin-card">
         <h2 style={{ fontSize: 18, marginTop: 0, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Package size={18} style={{ color: '#38bdf8' }} /> Histórico de Releases Disponíveis
+          <Package size={18} style={{ color: '#0284c7' }} /> Histórico de Releases Disponíveis
         </h2>
 
         {loading ? (
           <div style={{ padding: '40px 0', textAlign: 'center', color: '#10b981' }}>
             <Loader2 size={24} className="spin" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 8px' }} />
-            <p style={{ color: '#94a3b8', fontSize: 13 }}>Carregando releases…</p>
+            <p style={{ color: 'var(--muted)', fontSize: 13 }}>Carregando releases…</p>
           </div>
         ) : !releases.length ? (
-          <p style={{ color: '#64748b', fontSize: 13, margin: 0 }}>Nenhum release registrado no banco de dados.</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13, margin: 0 }}>Nenhum release registrado no banco de dados.</p>
         ) : (
           <div className="admin-table-container">
             <table className="admin-table">
@@ -209,25 +209,25 @@ export default function AdminPlugins() {
                 {releases.map((rel, idx) => (
                   <tr key={rel.id || idx}>
                     <td>
-                      <strong style={{ color: idx === 0 ? '#34d399' : '#f8fafc' }}>
+                      <strong style={{ color: idx === 0 ? 'var(--brand-dark)' : 'var(--text)' }}>
                         v{rel.version}
                       </strong>
                       {idx === 0 && (
                         <span className="admin-badge active" style={{ marginLeft: 6, fontSize: 10 }}>Atual</span>
                       )}
                     </td>
-                    <td style={{ color: '#94a3b8' }}>
+                    <td style={{ color: 'var(--muted)' }}>
                       <FileCode size={13} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 4 }} />
                       {rel.file_name || `ACMGO-v${rel.version}.rbz`}
                     </td>
-                    <td style={{ color: '#94a3b8' }}>
+                    <td style={{ color: 'var(--muted)' }}>
                       {rel.file_size_bytes ? `${(rel.file_size_bytes / (1024 * 1024)).toFixed(2)} MB` : '—'}
                     </td>
                     <td>{rel.min_sketchup_version || '2021'}+</td>
-                    <td style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#cbd5e1' }} title={rel.notes}>
+                    <td style={{ maxWidth: 240, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: 'var(--text)' }} title={rel.notes}>
                       {rel.notes || '—'}
                     </td>
-                    <td style={{ color: '#64748b', fontSize: 12 }}>
+                    <td style={{ color: 'var(--muted)', fontSize: 12 }}>
                       {new Date(rel.created_at).toLocaleDateString('pt-BR')}
                     </td>
                     <td style={{ textAlign: 'right' }}>

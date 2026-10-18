@@ -162,10 +162,10 @@ export default function AdminUsers() {
         {loading ? (
           <div style={{ padding: '60px 0', textAlign: 'center', color: '#10b981' }}>
             <Loader2 size={28} className="spin" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 8px' }} />
-            <p style={{ color: '#94a3b8', fontSize: 13 }}>Consultando contas…</p>
+            <p style={{ color: 'var(--muted)', fontSize: 13 }}>Consultando contas…</p>
           </div>
         ) : !users.length ? (
-          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--muted)' }}>
             Nenhum usuário encontrado com os filtros selecionados.
           </div>
         ) : (
@@ -188,7 +188,7 @@ export default function AdminUsers() {
                     <td>
                       <div>
                         <strong>{u.name}</strong>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>{u.ownerEmail}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>{u.ownerEmail}</div>
                       </div>
                     </td>
                     <td>
@@ -203,15 +203,15 @@ export default function AdminUsers() {
                         {u.status === 'active' ? 'Ativo' : u.status === 'pending' ? 'Pendente' : u.status === 'expired' ? 'Expirado' : u.status}
                       </span>
                     </td>
-                    <td style={{ color: '#94a3b8', fontSize: 12 }}>
+                    <td style={{ color: 'var(--muted)', fontSize: 12 }}>
                       {u.isLifetime ? 'Sem expiração' : u.expiresAt ? new Date(u.expiresAt).toLocaleDateString('pt-BR') : '—'}
                     </td>
                     <td>
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: u.activeDevicesCount > 0 ? '#34d399' : '#64748b' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: u.activeDevicesCount > 0 ? 'var(--brand-dark)' : 'var(--muted)' }}>
                         <Laptop size={14} /> {u.activeDevicesCount} / {u.seatLimit}
                       </span>
                     </td>
-                    <td style={{ color: '#94a3b8' }}>{u.membersCount}</td>
+                    <td style={{ color: 'var(--muted)' }}>{u.membersCount}</td>
                     <td style={{ textAlign: 'right' }}>
                       <button
                         className="admin-btn primary"
@@ -236,7 +236,7 @@ export default function AdminUsers() {
             <div className="admin-modal-header">
               <h3>Gerenciar Conta: {selectedUser.name}</h3>
               <button
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
                 onClick={() => setSelectedUser(null)}
               >
                 <X size={20} />
@@ -245,23 +245,23 @@ export default function AdminUsers() {
 
             <div className="admin-modal-body">
               {saveSuccess && (
-                <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', color: 'var(--brand-dark)', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <CheckCircle2 size={16} /> {saveSuccess}
                 </div>
               )}
               {saveError && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <AlertCircle size={16} /> {saveError}
                 </div>
               )}
 
-              <div style={{ padding: '12px 14px', background: '#0f172a', borderRadius: 8, fontSize: 13 }}>
-                <div style={{ color: '#94a3b8' }}>Titular da Conta:</div>
-                <strong style={{ color: '#f8fafc' }}>{selectedUser.ownerEmail}</strong>
+              <div style={{ padding: '12px 14px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13 }}>
+                <div style={{ color: 'var(--muted)' }}>Titular da Conta:</div>
+                <strong style={{ color: '#0f172a' }}>{selectedUser.ownerEmail}</strong>
               </div>
 
               {/* Concessão de Lifetime */}
-              <div style={{ padding: '12px 14px', background: '#0f172a', borderRadius: 8 }}>
+              <div style={{ padding: '12px 14px', background: '#faf5ff', border: '1px solid #e9d5ff', borderRadius: 8 }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                   <input
                     type="checkbox"
@@ -269,10 +269,10 @@ export default function AdminUsers() {
                     onChange={(e) => setEditLifetime(e.target.checked)}
                   />
                   <div>
-                    <strong style={{ color: '#c084fc', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <strong style={{ color: '#7e22ce', display: 'flex', alignItems: 'center', gap: 6 }}>
                       <Sparkles size={14} /> Conceder Licença Vitalícia (Lifetime)
                     </strong>
-                    <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                    <div style={{ fontSize: 12, color: 'var(--muted)' }}>
                       Não expira e dá acesso ilimitado sem renovação.
                     </div>
                   </div>
@@ -316,29 +316,29 @@ export default function AdminUsers() {
 
               {/* Seção de Máquinas Conectadas */}
               <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 8 }}>
+                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 8 }}>
                   Dispositivos Ativos ({selectedUser.devices.length})
                 </label>
                 {!selectedUser.devices.length ? (
-                  <p style={{ color: '#64748b', fontSize: 13, margin: 0 }}>Nenhum computador registrado no SketchUp.</p>
+                  <p style={{ color: 'var(--muted)', fontSize: 13, margin: 0 }}>Nenhum computador registrado no SketchUp.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {selectedUser.devices.map((dev) => (
                       <div
                         key={dev.id}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#0f172a', borderRadius: 8, fontSize: 13 }}
+                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13 }}
                       >
                         <div>
-                          <div style={{ fontWeight: 600, color: '#f8fafc' }}>
+                          <div style={{ fontWeight: 600, color: '#0f172a' }}>
                             <Laptop size={14} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 6 }} />
                             {dev.platform || 'Computador'} • SketchUp {dev.sketchupVersion || '—'}
                           </div>
-                          <div style={{ fontSize: 11, color: '#64748b' }}>
+                          <div style={{ fontSize: 11, color: 'var(--muted)' }}>
                             ID: {dev.machineId ? dev.machineId.slice(0, 16) + '…' : '—'}
                           </div>
                         </div>
                         <button
-                          className="admin-btn danger"
+                          className="btn danger sm"
                           style={{ padding: '4px 10px', fontSize: 12 }}
                           onClick={() => void handleRevokeDevice(dev.id)}
                         >

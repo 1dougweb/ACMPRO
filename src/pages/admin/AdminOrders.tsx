@@ -125,10 +125,10 @@ export default function AdminOrders() {
         {loading ? (
           <div style={{ padding: '60px 0', textAlign: 'center', color: '#10b981' }}>
             <Loader2 size={28} className="spin" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 8px' }} />
-            <p style={{ color: '#94a3b8', fontSize: 13 }}>Carregando pedidos…</p>
+            <p style={{ color: 'var(--muted)', fontSize: 13 }}>Carregando pedidos…</p>
           </div>
         ) : !filteredOrders.length ? (
-          <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+          <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--muted)' }}>
             Nenhum pedido encontrado.
           </div>
         ) : (
@@ -149,14 +149,14 @@ export default function AdminOrders() {
                 {filteredOrders.map((ord) => (
                   <tr key={ord.id}>
                     <td>
-                      <code style={{ fontSize: 11, color: '#94a3b8', background: '#0f172a', padding: '2px 6px', borderRadius: 4 }}>
+                      <code style={{ fontSize: 11, color: '#0369a1', background: '#e0f2fe', border: '1px solid #bae6fd', padding: '2px 6px', borderRadius: 4 }}>
                         {ord.id.slice(0, 13)}…
                       </code>
                     </td>
                     <td>
                       <div>
                         <strong>{ord.accountName}</strong>
-                        <div style={{ fontSize: 12, color: '#94a3b8' }}>{ord.payerEmail}</div>
+                        <div style={{ fontSize: 12, color: 'var(--muted)' }}>{ord.payerEmail}</div>
                       </div>
                     </td>
                     <td>
@@ -170,7 +170,7 @@ export default function AdminOrders() {
                         {ord.status === 'paid' ? 'Pago' : ord.status === 'pending' ? 'Pendente' : ord.status === 'refunded' ? 'Reembolsado' : ord.status}
                       </span>
                     </td>
-                    <td style={{ color: '#94a3b8', fontSize: 12 }}>
+                    <td style={{ color: 'var(--muted)', fontSize: 12 }}>
                       {ord.paidAt ? new Date(ord.paidAt).toLocaleString('pt-BR') : new Date(ord.createdAt).toLocaleDateString('pt-BR')}
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -206,7 +206,7 @@ export default function AdminOrders() {
             <div className="admin-modal-header">
               <h3>Confirmar Reembolso</h3>
               <button
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}
                 onClick={() => setOrderToRefund(null)}
               >
                 <X size={20} />
@@ -215,30 +215,30 @@ export default function AdminOrders() {
 
             <div className="admin-modal-body">
               {refundSuccess && (
-                <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#34d399', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: 'var(--brand-surface)', border: '1px solid var(--brand-border)', color: 'var(--brand-dark)', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <CheckCircle2 size={16} /> {refundSuccess}
                 </div>
               )}
               {refundError && (
-                <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', padding: '10px 14px', borderRadius: 8, fontSize: 13, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <AlertCircle size={16} /> {refundError}
                 </div>
               )}
 
-              <p style={{ color: '#cbd5e1', fontSize: 14, margin: 0 }}>
+              <p style={{ color: '#334155', fontSize: 14, margin: 0 }}>
                 Você está prestes a reembolsar o seguinte pedido:
               </p>
 
-              <div style={{ padding: '14px 16px', background: '#0f172a', borderRadius: 8, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <div style={{ padding: '14px 16px', background: '#f8fafc', border: '1px solid var(--border)', borderRadius: 8, fontSize: 13, display: 'flex', flexDirection: 'column', gap: 6 }}>
                 <div><strong>Cliente:</strong> {orderToRefund.accountName} ({orderToRefund.payerEmail})</div>
                 <div><strong>Valor a Estornar:</strong> {formatBRL(orderToRefund.amountCents)}</div>
                 <div><strong>Plano:</strong> {orderToRefund.offerKey === 'pro_annual' ? 'Pro Anual' : 'Pro Mensal'}</div>
                 {orderToRefund.providerPaymentId && (
-                  <div style={{ color: '#94a3b8' }}>ID Pagamento Mercado Pago: {orderToRefund.providerPaymentId}</div>
+                  <div style={{ color: 'var(--muted)' }}>ID Pagamento Mercado Pago: {orderToRefund.providerPaymentId}</div>
                 )}
               </div>
 
-              <div style={{ padding: '10px 14px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: 8, fontSize: 12, color: '#fca5a5' }}>
+              <div style={{ padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, fontSize: 12, color: '#b91c1c' }}>
                 ⚠️ O sistema enviará o pedido de estorno à API do Mercado Pago e cancelará imediatamente a licença de acesso do usuário. Esta ação não pode ser desfeita.
               </div>
             </div>

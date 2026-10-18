@@ -42,7 +42,7 @@ export default function AdminOverview() {
     return (
       <div style={{ padding: '80px 0', textAlign: 'center', color: '#10b981' }}>
         <Loader2 size={32} className="spin" style={{ animation: 'spin 1s linear infinite', margin: '0 auto 12px' }} />
-        <p style={{ color: '#94a3b8' }}>Carregando dados operacionais…</p>
+        <p style={{ color: 'var(--muted)' }}>Carregando dados operacionais…</p>
       </div>
     )
   }
@@ -50,7 +50,7 @@ export default function AdminOverview() {
   if (error || !data) {
     return (
       <div className="admin-card" style={{ borderColor: 'rgba(239, 68, 68, 0.4)' }}>
-        <p style={{ color: '#f87171' }}><AlertTriangle size={16} /> {error || 'Falha ao carregar métricas.'}</p>
+        <p style={{ color: '#dc2626', margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}><AlertTriangle size={16} /> {error || 'Falha ao carregar métricas.'}</p>
       </div>
     )
   }
@@ -101,48 +101,48 @@ export default function AdminOverview() {
 
       {/* Atalhos Rápidos de Gestão */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
-        <Link to="/app/admin/users" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#f8fafc' }}>
+        <Link to="/app/admin/users" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#0f172a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div className="admin-kpi-icon"><Users size={18} /></div>
             <div>
               <strong style={{ display: 'block', fontSize: 14 }}>Gerenciar Usuários</strong>
-              <small style={{ color: '#94a3b8' }}>Alterar planos e revogar máquinas</small>
+              <small style={{ color: 'var(--muted)' }}>Alterar planos e revogar máquinas</small>
             </div>
           </div>
-          <ArrowRight size={16} style={{ color: '#64748b' }} />
+          <ArrowRight size={16} style={{ color: 'var(--muted)' }} />
         </Link>
 
-        <Link to="/app/admin/orders" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#f8fafc' }}>
+        <Link to="/app/admin/orders" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#0f172a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div className="admin-kpi-icon"><TrendingUp size={18} /></div>
             <div>
               <strong style={{ display: 'block', fontSize: 14 }}>Pedidos e Reembolsos</strong>
-              <small style={{ color: '#94a3b8' }}>Transações e estornos do Mercado Pago</small>
+              <small style={{ color: 'var(--muted)' }}>Transações e estornos do Mercado Pago</small>
             </div>
           </div>
-          <ArrowRight size={16} style={{ color: '#64748b' }} />
+          <ArrowRight size={16} style={{ color: 'var(--muted)' }} />
         </Link>
 
-        <Link to="/app/admin/pricing" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#f8fafc' }}>
+        <Link to="/app/admin/pricing" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#0f172a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div className="admin-kpi-icon"><Tag size={18} /></div>
             <div>
               <strong style={{ display: 'block', fontSize: 14 }}>Tabela de Preços</strong>
-              <small style={{ color: '#94a3b8' }}>Ajustar valores do Pro Mensal/Anual</small>
+              <small style={{ color: 'var(--muted)' }}>Ajustar valores do Pro Mensal/Anual</small>
             </div>
           </div>
-          <ArrowRight size={16} style={{ color: '#64748b' }} />
+          <ArrowRight size={16} style={{ color: 'var(--muted)' }} />
         </Link>
 
-        <Link to="/app/admin/plugins" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#f8fafc' }}>
+        <Link to="/app/admin/plugins" className="admin-card" style={{ padding: 18, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', color: '#0f172a' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div className="admin-kpi-icon"><Package size={18} /></div>
             <div>
               <strong style={{ display: 'block', fontSize: 14 }}>Releases do Plugin</strong>
-              <small style={{ color: '#94a3b8' }}>Fazer upload de nova versão .rbz</small>
+              <small style={{ color: 'var(--muted)' }}>Fazer upload de nova versão .rbz</small>
             </div>
           </div>
-          <ArrowRight size={16} style={{ color: '#64748b' }} />
+          <ArrowRight size={16} style={{ color: 'var(--muted)' }} />
         </Link>
       </div>
 
@@ -169,8 +169,8 @@ export default function AdminOverview() {
                 {data.recentAccounts.map((acc) => (
                   <tr key={acc.id}>
                     <td><strong>{acc.name}</strong></td>
-                    <td style={{ color: '#94a3b8' }}>{acc.email || '—'}</td>
-                    <td style={{ color: '#64748b', fontSize: 12 }}>
+                    <td style={{ color: 'var(--muted)' }}>{acc.email || '—'}</td>
+                    <td style={{ color: 'var(--muted)', fontSize: 12 }}>
                       {new Date(acc.createdAt).toLocaleDateString('pt-BR')}
                     </td>
                   </tr>

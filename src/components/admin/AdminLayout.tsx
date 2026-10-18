@@ -42,7 +42,7 @@ export default function AdminLayout() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#090d16', color: '#10b981' }}>
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)', color: 'var(--brand)' }}>
         <Loader2 size={32} className="spin" style={{ animation: 'spin 1s linear infinite' }} />
       </div>
     )
@@ -51,14 +51,14 @@ export default function AdminLayout() {
   // Se o usuário logado não for site admin, bloqueia o acesso
   if (!license?.isAdmin) {
     return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#090d16', padding: 20 }}>
-        <div style={{ background: '#1e293b', border: '1px solid rgba(239, 68, 68, 0.3)', padding: 32, borderRadius: 12, maxWidth: 440, textAlign: 'center' }}>
+      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: 'var(--bg)', padding: 20 }}>
+        <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: 36, borderRadius: 12, maxWidth: 440, textAlign: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.06)' }}>
           <ShieldAlert size={42} style={{ color: '#ef4444', margin: '0 auto 16px' }} />
-          <h2 style={{ color: '#f8fafc', marginBottom: 8 }}>Acesso Restrito ao Administrador</h2>
-          <p style={{ color: '#94a3b8', fontSize: 14, marginBottom: 20 }}>
+          <h2 style={{ color: '#0f172a', marginBottom: 8, fontSize: 20 }}>Acesso Restrito ao Administrador</h2>
+          <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 20, lineHeight: 1.5 }}>
             Sua conta ({user?.email}) não possui privilégios de administrador do sistema GOACM.
           </p>
-          <Link to="/app" className="admin-btn primary" style={{ width: '100%', justifyContent: 'center' }}>
+          <Link to="/app" className="btn primary" style={{ width: '100%', justifyContent: 'center' }}>
             <ArrowLeft size={16} /> Voltar ao Portal
           </Link>
         </div>
@@ -140,8 +140,11 @@ export default function AdminLayout() {
             <span className="admin-status-pill">
               <span className="admin-status-dot" /> Sistema Operacional
             </span>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>
-              {user?.email}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 13, color: 'var(--muted)' }}>{user?.email}</span>
+              <div className="avatar" style={{ width: 34, height: 34, fontSize: 12 }}>
+                {(user?.name ?? user?.email ?? '?').split(' ').map((p) => p[0]).slice(0, 2).join('').toUpperCase()}
+              </div>
             </div>
           </div>
         </header>
