@@ -20,6 +20,8 @@ import {
   Video,
   FileArchive,
   Search,
+  PanelRightClose,
+  PanelRightOpen,
 } from 'lucide-react'
 import { api } from '../api'
 import type {
@@ -48,6 +50,9 @@ export default function Training() {
 
   // Módulos expandidos na sidebar (Map ou Set de IDs)
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({})
+
+  // Controle de largura e visualização da sidebar direita (Modo Cinema / Foco no Vídeo)
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   // Busca de aulas
   const [searchQuery, setSearchQuery] = useState('')
@@ -324,16 +329,27 @@ export default function Training() {
           <p>Assista aos módulos práticos, acesse os materiais de apoio e acompanhe seu progresso.</p>
         </div>
 
-        {isAdmin && (
-          <div className="training-admin-actions">
-            <button className="btn outline sm" onClick={() => handleOpenModuleModal()}>
-              <Plus size={15} /> Novo Módulo
-            </button>
-            <button className="btn primary sm" onClick={() => handleOpenLessonModal(undefined, currentModule?.id)}>
-              <Plus size={15} /> Nova Aula
-            </button>
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            className="btn outline sm"
+            onClick={() => setSidebarOpen((v) => !v)}
+            title={sidebarOpen ? "Expandir vídeo para largura total do container (Modo Cinema)" : "Exibir lista de aulas na lateral direita"}
+          >
+            {sidebarOpen ? <PanelRightClose size={15} /> : <PanelRightOpen size={15} />}
+            <span>{sidebarOpen ? 'Modo Cinema' : 'Ver Menu Lateral'}</span>
+          </button>
+
+          {isAdmin && (
+            <div className="training-admin-actions">
+              <button className="btn outline sm" onClick={() => handleOpenModuleModal()}>
+                <Plus size={15} /> Novo Módulo
+              </button>
+              <button className="btn primary sm" onClick={() => handleOpenLessonModal(undefined, currentModule?.id)}>
+                <Plus size={15} /> Nova Aula
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -349,7 +365,7 @@ export default function Training() {
         </div>
       ) : (
         /* LAYOUT PRINCIPAL: CLASSROOM (ESQUERDA) + RIGHT SIDEBAR (DIREITA) */
-        <div className="training-layout">
+        <div className={`training-layout ${!sidebarOpen ? 'sidebar-collapsed' : ''}`}>
           {/* ========================================================
               COLUNA ESQUERDA: PLAYER DE VÍDEO & CONTEÚDO DA AULA
               ======================================================== */}
@@ -420,6 +436,14 @@ export default function Training() {
                     title={nextLesson ? `Próxima: ${nextLesson.title}` : undefined}
                   >
                     Próxima <ArrowRight size={14} />
+                  </button>
+                  <button
+                    className="btn outline sm"
+                    onClick={() => setSidebarOpen((v) => !v)}
+                    title={sidebarOpen ? "Expandir vídeo para largura total (Modo Cinema)" : "Abrir menu lateral de aulas"}
+                  >
+                    {sidebarOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
+                    <span>{sidebarOpen ? 'Modo Cinema' : 'Ver Aulas'}</span>
                   </button>
                 </div>
               </div>
@@ -531,7 +555,8 @@ export default function Training() {
           {/* ========================================================
               COLUNA DIREITA: MENU LATERAL DIREITO (SIDEBAR DE AULAS)
               ======================================================== */}
-          <aside className="training-sidebar-right">
+          {sidebarOpen && (
+            <aside className="training-sidebar-right">
             {/* Header da Sidebar com Progresso */}
             <div className="training-sidebar-header">
               <h3>
@@ -693,6 +718,7 @@ export default function Training() {
               )}
             </div>
           </aside>
+          )}
         </div>
       )}
 

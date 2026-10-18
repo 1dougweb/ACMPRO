@@ -263,19 +263,30 @@ input[type='checkbox'] { width: 16px; height: 16px; accent-color: var(--brand); 
 .invite-form .invite-locale { grid-column: 1; }
 .invite-form .btn { justify-self: start; min-width: 145px; }
 
+/* Container optimization for Training: Maximum width & presence for video */
+.container:has(.training-page) {
+  max-width: 1680px;
+  padding: 20px 24px 60px;
+}
+
 /* Training System & Video Classroom with Right Sidebar */
-.training-page { max-width: 1400px; margin: 0 auto; padding-bottom: 48px; }
-.training-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.training-page { width: 100%; max-width: 100%; margin: 0 auto; padding-bottom: 48px; }
+.training-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 18px; }
 .training-heading .page-title { font-size: 26px; margin: 0; }
 .training-heading p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
 .training-admin-actions { display: flex; align-items: center; gap: 10px; }
 
-/* Grid: Video Classroom (Left) + Right Sidebar (360px) */
+/* Grid: Video Classroom prioritized (Left/Center) + Compact Right Sidebar */
 .training-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 370px;
+  grid-template-columns: minmax(0, 1fr) 310px;
   gap: 24px;
   align-items: start;
+  transition: grid-template-columns 0.25s ease;
+}
+
+.training-layout.sidebar-collapsed {
+  grid-template-columns: 1fr;
 }
 
 @media (max-width: 1024px) {
