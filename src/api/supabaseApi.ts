@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type LatestPluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type LatestPluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User, type AdminAccountItem, type AdminOrderDetail, type AdminPricingSettings, type AdminEnvDiagnosis } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
@@ -388,5 +388,39 @@ export const supabaseApi: Api = {
     })
 
     return regResult
+  },
+
+  async adminListUsers(search, status) {
+    const res = await invoke<{ accounts: AdminAccountItem[] }>('admin-users', { action: 'list', search, status })
+    return res.accounts
+  },
+
+  async adminUpdateLicense(payload) {
+    await invoke('admin-users', { action: 'update-license', ...payload })
+  },
+
+  async adminRevokeDevice(deviceId) {
+    await invoke('admin-users', { action: 'revoke-device', deviceId })
+  },
+
+  async adminListOrders(status) {
+    const res = await invoke<{ orders: AdminOrderDetail[] }>('admin-orders', { action: 'list', status })
+    return res.orders
+  },
+
+  async adminRefundOrder(orderId) {
+    await invoke('admin-orders', { action: 'refund', orderId })
+  },
+
+  async adminGetSettings() {
+    return await invoke<{ pricing: AdminPricingSettings; env: AdminEnvDiagnosis }>('admin-settings', { action: 'get' })
+  },
+
+  async adminUpdatePricing(monthlyCents, annualCents) {
+    await invoke('admin-settings', {
+      action: 'update-pricing',
+      monthlyAmountCents: monthlyCents,
+      annualAmountCents: annualCents,
+    })
   },
 }

@@ -122,7 +122,7 @@ export default function AppLayout() {
             )}
             <button className="menu-item" role="menuitem" onClick={() => { setOpen(false); setProfileOpen(true) }}><User size={15} /> Meu Perfil</button>
             <Link className="menu-item" role="menuitem" to="/app/plans" onClick={closeMenu}><CreditCard size={15} /> {hasActivePlan ? 'Gerenciar assinatura' : 'Assinatura'}</Link>
-            {adminOverview && <><div className="menu-divider" /><Link className="menu-item" role="menuitem" to="/app/admin" onClick={closeMenu}><ShieldCheck size={15} /> Administração</Link></>}
+            {license?.isAdmin && <><div className="menu-divider" /><Link className="menu-item" role="menuitem" to="/app/admin" onClick={closeMenu}><ShieldCheck size={15} /> Painel do Administrador</Link></>}
             <div className="menu-divider" />
             <button id="logout-btn" role="menuitem" className="menu-item danger" onClick={async () => { closeMenu(); await logout(); navigate('/login') }}><LogOut size={15} /> Sair</button>
           </div>}

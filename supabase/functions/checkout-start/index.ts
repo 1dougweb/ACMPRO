@@ -27,14 +27,10 @@ Deno.serve(async (req) => {
     if (!member) return respond(req, { error: 'account_missing', message: 'A conta ainda não está vinculada.' }, 404)
     if (member.role !== 'owner') return respond(req, { error: 'owner_required', message: 'Somente o titular pode contratar ou alterar o plano.' }, 403)
 
-    const monthlyCents = positiveIntegerEnv('MP_PRO_MONTHLY_AMOUNT_CENTS')
-    const annualCents = positiveIntegerEnv('MP_PRO_ANNUAL_AMOUNT_CENTS')
+    const { data: pricingRow } = await ctx.admin.from('license_pricing_config').select('monthly_amount_cents, annual_amount_cents').eq('id', 1).maybeSingle()
+    const monthlyCents = pricingRow?.monthly_amount_cents || positiveIntegerEnv('MP_PRO_MONTHLY_AMOUNT_CENTS') || 9700
+    const annualCents = pricingRow?.annual_amount_cents || positiveIntegerEnv('MP_PRO_ANNUAL_AMOUNT_CENTS') || 97000
     const amountCents = offer === 'pro_monthly' ? monthlyCents : annualCents
-    if (!amountCents) {
-      return respond(req, { error: 'offer_not_configured', message: offer === 'pro_annual'
-        ? 'O valor anual ainda precisa ser configurado no backend conforme a oferta do site.'
-        : 'O valor mensal ainda precisa ser configurado no backend.' }, 503)
-    }
 
     const now = new Date().toISOString()
     const portalReturnUrl = portalUrl('/app?checkout=return')

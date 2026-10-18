@@ -170,7 +170,94 @@ export interface Api {
     minSketchupVersion?: string
     isMandatory?: boolean
   }): Promise<{ success: boolean; release: PluginRelease }>
+  adminListUsers(search?: string, status?: string): Promise<AdminAccountItem[]>
+  adminUpdateLicense(payload: AdminUpdateLicensePayload): Promise<void>
+  adminRevokeDevice(deviceId: string): Promise<void>
+  adminListOrders(status?: string): Promise<AdminOrderDetail[]>
+  adminRefundOrder(orderId: string): Promise<void>
+  adminGetSettings(): Promise<{ pricing: AdminPricingSettings; env: AdminEnvDiagnosis }>
+  adminUpdatePricing(monthlyCents: number, annualCents: number): Promise<void>
 }
+
+export interface AdminAccountItem {
+  id: string
+  name: string
+  createdAt: string
+  ownerEmail: string
+  ownerName: string | null
+  status: 'active' | 'pending' | 'expired' | 'suspended' | 'past_due' | 'none'
+  isLifetime: boolean
+  plan: string
+  offerKey: OfferKey | null
+  expiresAt: string | null
+  seatLimit: number
+  membersCount: number
+  activeDevicesCount: number
+  devices: Array<{
+    id: string
+    machineId: string
+    platform: string
+    sketchupVersion: string
+    lastSeenAt: string
+  }>
+  recentOrders?: Array<{
+    id: string
+    offerKey: string
+    status: string
+    amount_cents: number
+    created_at: string
+  }>
+}
+
+export interface AdminOrderDetail {
+  id: string
+  accountId: string
+  accountName: string
+  payerEmail: string
+  offerKey: OfferKey
+  status: 'paid' | 'pending' | 'canceled' | 'expired' | 'refunded'
+  amountCents: number
+  currency: string
+  providerPaymentId: string | null
+  paidAt: string | null
+  createdAt: string
+}
+
+export interface AdminPricingSettings {
+  monthlyAmountCents: number
+  annualAmountCents: number
+  updatedAt: string | null
+  updatedBy: string
+}
+
+export interface AdminEnvDiagnosis {
+  mercadoPago: {
+    configured: boolean
+    mode: string
+    tokenPreview: string
+    webhookConfigured: boolean
+    sellerIdConfigured: boolean
+  }
+  security: {
+    licenseSigningKey: boolean
+    entitlementKey: boolean
+    adminEmails: string[]
+  }
+  system: {
+    supabaseUrl: string
+    databaseConnected: boolean
+    nodeEnv: string
+  }
+}
+
+export interface AdminUpdateLicensePayload {
+  accountId: string
+  lifetime?: boolean
+  status?: string
+  expiresAt?: string
+  seatLimit?: number
+}
+
 
 export interface LatestPluginRelease {
   version: string

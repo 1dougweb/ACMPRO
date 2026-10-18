@@ -422,4 +422,61 @@ export const mockApi: Api = {
     }
     return { success: true, release }
   },
+
+  async adminListUsers() {
+    await delay()
+    return []
+  },
+
+  async adminUpdateLicense() {
+    await delay()
+  },
+
+  async adminRevokeDevice() {
+    await delay()
+  },
+
+  async adminListOrders() {
+    await delay()
+    return []
+  },
+
+  async adminRefundOrder() {
+    await delay()
+  },
+
+  async adminGetSettings() {
+    await delay()
+    return {
+      pricing: {
+        monthlyAmountCents: 9700,
+        annualAmountCents: 97000,
+        updatedAt: null,
+        updatedBy: 'Mock',
+      },
+      env: {
+        mercadoPago: {
+          configured: true,
+          mode: 'Mock Test',
+          tokenPreview: 'TEST-••••••••',
+          webhookConfigured: true,
+          sellerIdConfigured: true,
+        },
+        security: {
+          licenseSigningKey: true,
+          entitlementKey: true,
+          adminEmails: ['owner@example.com'],
+        },
+        system: {
+          supabaseUrl: 'mock.local',
+          databaseConnected: true,
+          nodeEnv: 'development',
+        },
+      },
+    }
+  },
+
+  async adminUpdatePricing() {
+    await delay()
+  },
 }
