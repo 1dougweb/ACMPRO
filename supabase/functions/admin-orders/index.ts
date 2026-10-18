@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       const statusFilter = (body.status || url.searchParams.get('status') || '').trim().toLowerCase()
 
       let query = ctx.admin.from('license_orders')
-        .select('id, account_id, offer_key, status, amount_cents, currency, provider_payment_id, provider_order_id, paid_at, expires_at, created_at')
+        .select('id, account_id, offer_key, status, amount_cents, currency, provider_checkout_id, paid_at, expires_at, created_at')
         .order('created_at', { ascending: false })
         .limit(100)
 
@@ -33,14 +33,17 @@ Deno.serve(async (req) => {
       const { data: orders, error: ordersError } = await query
       if (ordersError) throw ordersError
 
+      const orderIds = (orders ?? []).map((o) => o.id)
       const accountIds = Array.from(new Set((orders ?? []).map((o) => o.account_id)))
-      const [accountsRes, membersRes] = await Promise.all([
+      const [accountsRes, membersRes, paymentsRes] = await Promise.all([
         accountIds.length ? ctx.admin.from('license_accounts').select('id, name').in('id', accountIds) : { data: [], error: null },
         accountIds.length ? ctx.admin.from('license_members').select('account_id, email, role').in('account_id', accountIds).eq('role', 'owner') : { data: [], error: null },
+        orderIds.length ? ctx.admin.from('license_payments').select('order_id, provider_payment_id').in('order_id', orderIds) : { data: [], error: null },
       ])
 
       const accountMap = new Map((accountsRes.data ?? []).map((a) => [a.id, a.name]))
       const ownerMap = new Map((membersRes.data ?? []).map((m) => [m.account_id, m.email]))
+      const paymentMap = new Map((paymentsRes.data ?? []).map((p) => [p.order_id, p.provider_payment_id]))
 
       const result = (orders ?? []).map((order) => ({
         id: order.id,
@@ -51,7 +54,7 @@ Deno.serve(async (req) => {
         status: order.status,
         amountCents: order.amount_cents,
         currency: order.currency || 'BRL',
-        providerPaymentId: order.provider_payment_id || null,
+        providerPaymentId: paymentMap.get(order.id) || order.provider_checkout_id || null,
         paidAt: order.paid_at || null,
         createdAt: order.created_at,
       }))
@@ -77,17 +80,25 @@ Deno.serve(async (req) => {
         return respond(req, { error: 'already_refunded', message: 'Este pedido já foi reembolsado anteriormente.' }, 400)
       }
 
-      // Se possui provider_payment_id do Mercado Pago, solicita o reembolso via API
+      // Procura o provider_payment_id no registro de pagamentos
+      const { data: payment } = await ctx.admin.from('license_payments')
+        .select('provider_payment_id')
+        .eq('order_id', orderId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+
+      const targetPaymentId = payment?.provider_payment_id
+
       let refundResult: any = null
-      if (order.provider_payment_id) {
+      if (targetPaymentId) {
         try {
-          refundResult = await mercadoPagoRequest(`/v1/payments/${order.provider_payment_id}/refunds`, {
+          refundResult = await mercadoPagoRequest(`/v1/payments/${targetPaymentId}/refunds`, {
             method: 'POST',
             body: JSON.stringify({}),
           })
         } catch (mpErr) {
           console.error('Mercado Pago refund call failed:', errorMessage(mpErr))
-          // Se falhou no MP (ex: chave de teste ou pagamento antigo), loga mas permite confirmar se admin desejar
         }
       }
 
@@ -120,6 +131,6 @@ Deno.serve(async (req) => {
     return respond(req, { error: 'invalid_action', message: 'Ação não reconhecida.' }, 400)
   } catch (error) {
     console.error('admin-orders failed', errorMessage(error))
-    return respond(req, { error: 'admin_orders_failed', message: 'Erro ao processar pedidos.' }, 500)
+    return respond(req, { error: 'admin_orders_failed', message: errorMessage(error) || 'Erro ao processar pedidos.' }, 500)
   }
 })
