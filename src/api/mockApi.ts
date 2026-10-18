@@ -479,4 +479,54 @@ export const mockApi: Api = {
   async adminUpdatePricing() {
     await delay()
   },
+
+  async getTrainingContent() {
+    await delay()
+    return {
+      isAdmin: true,
+      completedLessonIds: [],
+      modules: [
+        {
+          id: 'mod-1',
+          title: 'Tutorial GOACM',
+          description: 'Conceitos essenciais e estruturas.',
+          orderIndex: 1,
+          lessons: [
+            {
+              id: 'les-1',
+              moduleId: 'mod-1',
+              title: 'Novidades do GOACM',
+              description: 'Visão geral da extensão.',
+              durationMinutes: 15,
+              videoUrl: '',
+              attachments: [],
+            },
+          ],
+        },
+      ],
+    }
+  },
+
+  async toggleLessonProgress() {
+    await delay()
+    return { completedLessonIds: [] }
+  },
+
+  async saveTrainingModule() {
+    await delay()
+    return { moduleId: 'mod-new' }
+  },
+
+  async deleteTrainingModule() {
+    await delay()
+  },
+
+  async saveTrainingLesson() {
+    await delay()
+    return { lessonId: 'les-new' }
+  },
+
+  async deleteTrainingLesson() {
+    await delay()
+  },
 }

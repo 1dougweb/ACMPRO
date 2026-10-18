@@ -1,5 +1,5 @@
 import { createClient, type User as SupabaseUser } from '@supabase/supabase-js'
-import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type LatestPluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User, type AdminAccountItem, type AdminOrderDetail, type AdminPricingSettings, type AdminEnvDiagnosis } from './types'
+import { ApiError, type AdminOverview, type Api, type Device, type License, type Member, type OfferKey, type PluginRelease, type LatestPluginRelease, type Project, type ProjectDetails, type ProjectStatus, type PublicOffers, type User, type AdminAccountItem, type AdminOrderDetail, type AdminPricingSettings, type AdminEnvDiagnosis, type TrainingData } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const supabaseAnonKey = (
@@ -421,6 +421,46 @@ export const supabaseApi: Api = {
       action: 'update-pricing',
       monthlyAmountCents: monthlyCents,
       annualAmountCents: annualCents,
+    })
+  },
+
+  async getTrainingContent() {
+    return await invoke<TrainingData>('training-content', { action: 'list' })
+  },
+
+  async toggleLessonProgress(lessonId, completed) {
+    return await invoke<{ completedLessonIds: string[] }>('training-content', {
+      action: 'toggle-progress',
+      lessonId,
+      completed,
+    })
+  },
+
+  async saveTrainingModule(module) {
+    return await invoke<{ moduleId: string }>('training-content', {
+      action: 'save-module',
+      ...module,
+    })
+  },
+
+  async deleteTrainingModule(moduleId) {
+    await invoke('training-content', {
+      action: 'delete-module',
+      moduleId,
+    })
+  },
+
+  async saveTrainingLesson(lesson) {
+    return await invoke<{ lessonId: string }>('training-content', {
+      action: 'save-lesson',
+      ...lesson,
+    })
+  },
+
+  async deleteTrainingLesson(lessonId) {
+    await invoke('training-content', {
+      action: 'delete-lesson',
+      lessonId,
     })
   },
 }

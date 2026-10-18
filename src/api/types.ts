@@ -203,6 +203,45 @@ export interface Api {
   adminRefundOrder(orderId: string): Promise<void>
   adminGetSettings(): Promise<{ pricing: AdminPricingSettings; env: AdminEnvDiagnosis }>
   adminUpdatePricing(monthlyCents: number, annualCents: number): Promise<void>
+  getTrainingContent(): Promise<TrainingData>
+  toggleLessonProgress(lessonId: string, completed: boolean): Promise<{ completedLessonIds: string[] }>
+  saveTrainingModule(module: { id?: string; title: string; description?: string; orderIndex?: number }): Promise<{ moduleId: string }>
+  deleteTrainingModule(moduleId: string): Promise<void>
+  saveTrainingLesson(lesson: { id?: string; moduleId: string; title: string; description?: string; videoUrl?: string; durationMinutes?: number; attachments?: TrainingAttachment[]; orderIndex?: number }): Promise<{ lessonId: string }>
+  deleteTrainingLesson(lessonId: string): Promise<void>
+}
+
+export interface TrainingAttachment {
+  title: string
+  url: string
+  type?: string
+  size?: string
+}
+
+export interface TrainingLesson {
+  id: string
+  moduleId: string
+  title: string
+  description?: string
+  videoUrl?: string
+  durationMinutes?: number
+  attachments?: TrainingAttachment[]
+  orderIndex?: number
+  completed?: boolean
+}
+
+export interface TrainingModule {
+  id: string
+  title: string
+  description?: string
+  orderIndex?: number
+  lessons: TrainingLesson[]
+}
+
+export interface TrainingData {
+  modules: TrainingModule[]
+  completedLessonIds: string[]
+  isAdmin: boolean
 }
 
 export interface AdminAccountItem {
